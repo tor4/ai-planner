@@ -1,0 +1,25 @@
+{
+  "name": "ai-planner",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eval:skill": "bash scripts/eval-skill.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tor4/ai-planner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tor4/ai-planner/issues"
+  },
+  "homepage": "https://github.com/tor4/ai-planner#readme"
+}

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: mixed-changes-split
+expected_outcome: |
+  Points out that the staged changes are two unrelated things (a PRD wording change and a .gitignore entry for .DS_Store) and offers one message for each, leaving the choice to the user; no commit made.
+context:
+  scaffold_script: setup-repo.sh

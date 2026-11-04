@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: docs-typo-subject-only
+expected_outcome: |
+  A one-line imperative subject with no body (the typo fix needs no explanation), a question about creating a branch or committing on main, and no commit made.
+context:
+  scaffold_script: setup-repo.sh

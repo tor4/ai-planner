@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: review-only-no-rewrite
+expected_outcome: |
+  Reviews the PRD and lists its problems, but does not edit or rewrite docs/PRD.md; says that rewriting is outside what it does.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: seeded-defects-prd
+expected_outcome: |
+  Verdict of needs revision or reject, with the planted defects each named and located: Must 1 (read-only) contradicts Must 2 (moves events); the goals are unmeasurable; there is no out-of-scope section; weasel words (etc., as needed); Must 3 depends on a Should item.
+context:
+  scaffold_script: place-files.sh

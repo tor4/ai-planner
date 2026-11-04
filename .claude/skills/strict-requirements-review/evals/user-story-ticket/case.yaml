@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: user-story-ticket
+expected_outcome: |
+  Flags the acceptance criteria as untestable (works correctly, handles errors, fast), names concrete missing edge cases, and does not treat PRD-only sections (vision, success metrics, timeline) as defects of a single story.
+context:
+  scaffold_script: place-files.sh

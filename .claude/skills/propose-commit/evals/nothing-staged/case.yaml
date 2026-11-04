@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: nothing-staged
+expected_outcome: |
+  Lists the modified file (docs/PRD.md) and the untracked .DS_Store and .obsidian/, and asks which to include, without pointing out that nothing is staged; stages nothing and makes no commit.
+context:
+  scaffold_script: setup-repo.sh

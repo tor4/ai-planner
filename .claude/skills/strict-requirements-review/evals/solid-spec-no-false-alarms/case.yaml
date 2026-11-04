@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: solid-spec-no-false-alarms
+expected_outcome: |
+  A verdict of approve or approve with changes for a well-specified document, with no blocker or critical findings invented to look strict; any findings are minor or major and tied to specific text.
+context:
+  scaffold_script: place-files.sh

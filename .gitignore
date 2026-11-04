@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# npm
+node_modules/
+
+# Obsidian editor settings
+.obsidian/
+
+# Claude Code: personal settings
+.claude/settings.local.json
+
+# Skill test results (one folder per skill)
+.skill-evals/
+.claude/skills/*/evals/results/

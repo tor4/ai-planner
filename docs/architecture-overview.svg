@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1220 830" width="1220" height="830" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" fill="#18181b">
+  <title>AI Planner architecture overview</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#52525b"/>
+    </marker>
+    <style>
+      .group-label { font-weight: 600; font-size: 14px; }
+      .box-title { font-weight: 600; }
+      .muted { fill: #52525b; font-size: 12px; }
+      .edge { stroke: #52525b; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+      .edge-later { stroke: #71717a; stroke-width: 1.5; fill: none; stroke-dasharray: 6 4; marker-end: url(#arrow); }
+      .edge-label { fill: #3f3f46; font-size: 11.5px; }
+      .edge-bg { fill: #ffffff; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1220" height="830" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="40" y="48" font-size="22" font-weight="700">AI Planner: architecture overview</text>
+  <text x="40" y="72" class="muted">Releases 1a and 1b · user data stored in EU regions · $0 free-tier hosting</text>
+
+  <!-- Legend -->
+  <g transform="translate(870,36)">
+    <line x1="0" y1="8" x2="40" y2="8" class="edge"/>
+    <text x="50" y="12" class="muted">request or data flow</text>
+    <line x1="0" y1="32" x2="40" y2="32" class="edge-later"/>
+    <text x="50" y="36" class="muted">later (assistant, website)</text>
+  </g>
+
+  <!-- ===== User devices ===== -->
+  <rect x="40" y="140" width="260" height="210" rx="12" fill="#f5f3ff" stroke="#a78bfa"/>
+  <text x="56" y="164" class="group-label">User devices</text>
+  <rect x="56" y="178" width="228" height="156" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="70" y="202" class="box-title">Browser / installed PWA</text>
+  <text x="70" y="226" class="muted">Mac · Windows · iPhone · Android</text>
+  <text x="70" y="248" class="muted">React UI, keyboard accessible</text>
+  <text x="70" y="270" class="muted">Service worker: notifications</text>
+  <text x="70" y="292" class="muted">IndexedDB: read-only offline</text>
+  <text x="70" y="310" class="muted">snapshot (1b)</text>
+
+  <!-- Search engines -->
+  <rect x="40" y="525" width="260" height="60" rx="12" fill="#fafafa" stroke="#a1a1aa" stroke-dasharray="6 4"/>
+  <text x="56" y="550" class="box-title">Search engines</text>
+  <text x="56" y="570" class="muted">index the public website only</text>
+
+  <!-- GitHub -->
+  <rect x="40" y="640" width="260" height="80" rx="12" fill="#fafafa" stroke="#a1a1aa"/>
+  <text x="56" y="664" class="box-title">GitHub</text>
+  <text x="56" y="684" class="muted">Actions: CI, deploy, migrations</text>
+  <text x="56" y="702" class="muted">Daily encrypted pg_dump</text>
+
+  <!-- ===== Vercel ===== -->
+  <rect x="360" y="100" width="440" height="500" rx="12" fill="#f4f4f5" stroke="#a1a1aa"/>
+  <text x="376" y="124" class="group-label">Vercel (EU region)</text>
+
+  <!-- App project -->
+  <rect x="380" y="136" width="400" height="368" rx="10" fill="#ffffff" stroke="#a1a1aa"/>
+  <text x="396" y="160" class="box-title">App project · app.&lt;domain&gt;</text>
+
+  <rect x="396" y="172" width="368" height="40" rx="6" fill="#fafafa" stroke="#d4d4d8"/>
+  <text x="410" y="197">Static PWA build (React + Vite)</text>
+
+  <rect x="396" y="226" width="368" height="264" rx="6" fill="#fafafa" stroke="#d4d4d8"/>
+  <text x="410" y="250" class="box-title">Hono API · serverless functions</text>
+  <text x="410" y="272" class="muted">Modules: Auth · Tasks · Blocks · Calendar · Planner</text>
+  <text x="410" y="290" class="muted">Learning · Metrics · History · Account · Jobs</text>
+
+  <rect x="410" y="304" width="340" height="62" rx="6" fill="#ecfeff" stroke="#67e8f9"/>
+  <text x="424" y="326" class="box-title">packages/core (pure functions)</text>
+  <text x="424" y="348" class="muted">suggester · rules · time math · metric formulas</text>
+
+  <text x="410" y="390" class="muted">Feature flags · rate limits · security headers</text>
+  <text x="410" y="408" class="muted">/api/jobs/tick: sync, recurring tasks, purge</text>
+
+  <rect x="410" y="420" width="340" height="56" rx="6" fill="#ffffff" stroke="#a1a1aa" stroke-dasharray="6 4"/>
+  <text x="424" y="442" class="box-title">Assistant (later)</text>
+  <text x="424" y="462" class="muted">projection layer · proposals only (Must 13)</text>
+
+  <!-- Site project -->
+  <rect x="380" y="520" width="230" height="64" rx="10" fill="#ffffff" stroke="#a1a1aa" stroke-dasharray="6 4"/>
+  <text x="396" y="545" class="box-title">Site project · &lt;domain&gt;</text>
+  <text x="396" y="566" class="muted">Astro static website (after 1b)</text>
+
+  <!-- ===== Neon ===== -->
+  <rect x="540" y="650" width="260" height="76" rx="12" fill="#f0fdf4" stroke="#4ade80"/>
+  <text x="556" y="676" class="box-title">Neon Postgres (EU)</text>
+  <text x="556" y="696" class="muted">single source of truth</text>
+  <text x="556" y="714" class="muted">events · frozen fields · 30-day history</text>
+
+  <!-- ===== Google ===== -->
+  <rect x="870" y="100" width="310" height="196" rx="12" fill="#eff6ff" stroke="#60a5fa"/>
+  <text x="886" y="124" class="group-label">Google</text>
+  <rect x="886" y="136" width="278" height="62" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="900" y="160" class="box-title">OAuth (sign-in)</text>
+  <text x="900" y="180" class="muted">allow-list · token revoke on delete all</text>
+  <rect x="886" y="214" width="278" height="66" rx="8" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="900" y="238" class="box-title">Calendar API (read only)</text>
+  <text x="900" y="258" class="muted">events become hard events</text>
+
+  <!-- ===== LLM ===== -->
+  <rect x="870" y="318" width="310" height="70" rx="12" fill="#fafafa" stroke="#a1a1aa" stroke-dasharray="6 4"/>
+  <text x="886" y="344" class="box-title">LLM provider (later)</text>
+  <text x="886" y="366" class="muted">EU processing · no training · pinned model</text>
+
+  <!-- ===== Monitoring ===== -->
+  <rect x="870" y="410" width="310" height="70" rx="12" fill="#fafafa" stroke="#a1a1aa"/>
+  <text x="886" y="436" class="box-title">Monitoring</text>
+  <text x="886" y="458" class="muted">Sentry (EU) · uptime check on Worker /status · email alerts</text>
+
+  <!-- ===== Cloudflare ===== -->
+  <rect x="870" y="520" width="310" height="230" rx="12" fill="#fff7ed" stroke="#fb923c"/>
+  <text x="886" y="544" class="group-label">Cloudflare</text>
+  <rect x="886" y="556" width="278" height="70" rx="8" fill="#ffffff" stroke="#fdba74"/>
+  <text x="900" y="580" class="box-title">Scheduler Worker</text>
+  <text x="900" y="600" class="muted">cron every 10 minutes · no user data</text>
+  <rect x="886" y="660" width="278" height="70" rx="8" fill="#ffffff" stroke="#fdba74"/>
+  <text x="900" y="684" class="box-title">R2 backups (EU)</text>
+  <text x="900" y="704" class="muted">encrypted dumps, deleted after 30 days</text>
+
+  <!-- ===== Edges ===== -->
+
+  <!-- Browser to static PWA -->
+  <path d="M300,192 L392,192" class="edge"/>
+  <rect x="312" y="172" width="64" height="14" class="edge-bg"/>
+  <text x="314" y="183" class="edge-label">loads app</text>
+
+  <!-- Browser to API -->
+  <path d="M300,290 L392,290" class="edge"/>
+  <rect x="304" y="262" width="84" height="26" class="edge-bg"/>
+  <text x="306" y="273" class="edge-label">HTTPS JSON</text>
+  <text x="306" y="286" class="edge-label">session cookie</text>
+
+  <!-- Search engines to site -->
+  <path d="M300,555 L376,555" class="edge-later"/>
+  <rect x="326" y="535" width="40" height="14" class="edge-bg"/>
+  <text x="328" y="546" class="edge-label">crawl</text>
+
+  <!-- API to Google OAuth -->
+  <path d="M780,167 L882,167" class="edge"/>
+  <rect x="790" y="147" width="78" height="14" class="edge-bg"/>
+  <text x="792" y="158" class="edge-label">OAuth + PKCE</text>
+
+  <!-- API to Calendar -->
+  <path d="M780,247 L882,247" class="edge"/>
+  <rect x="790" y="227" width="78" height="14" class="edge-bg"/>
+  <text x="792" y="238" class="edge-label">events sync</text>
+
+  <!-- API to LLM -->
+  <path d="M764,448 L820,448 L820,353 L866,353" class="edge-later"/>
+  <rect x="824" y="380" width="44" height="26" class="edge-bg"/>
+  <text x="826" y="391" class="edge-label">minimal</text>
+  <text x="826" y="404" class="edge-label">data</text>
+
+  <!-- API to monitoring -->
+  <path d="M780,445 L866,445" class="edge"/>
+  <rect x="826" y="425" width="40" height="14" class="edge-bg"/>
+  <text x="828" y="436" class="edge-label">errors</text>
+
+  <!-- Scheduler to tick -->
+  <path d="M886,591 L740,591 L740,494" class="edge"/>
+  <rect x="752" y="597" width="128" height="26" class="edge-bg"/>
+  <text x="754" y="608" class="edge-label">POST /api/jobs/tick</text>
+  <text x="754" y="621" class="edge-label">shared secret</text>
+
+  <!-- API to Neon -->
+  <path d="M680,490 L680,646" class="edge"/>
+  <rect x="616" y="606" width="60" height="26" class="edge-bg"/>
+  <text x="618" y="617" class="edge-label">SQL over</text>
+  <text x="618" y="630" class="edge-label">TLS</text>
+
+  <!-- GitHub deploy to Vercel -->
+  <path d="M300,662 L320,662 L320,470 L356,470" class="edge"/>
+  <rect x="325" y="606" width="30" height="26" class="edge-bg"/>
+  <text x="326" y="617" class="edge-label">CI/</text>
+  <text x="326" y="630" class="edge-label">CD</text>
+
+  <!-- GitHub dump from Neon -->
+  <path d="M536,700 L304,700" class="edge"/>
+  <rect x="390" y="680" width="56" height="14" class="edge-bg"/>
+  <text x="392" y="691" class="edge-label">pg_dump</text>
+
+  <!-- GitHub to R2 -->
+  <path d="M170,720 L170,790 L1025,790 L1025,734" class="edge"/>
+  <rect x="520" y="775" width="190" height="14" class="edge-bg"/>
+  <text x="522" y="786" class="edge-label">encrypted backup upload every 12 hours</text>
+</svg>

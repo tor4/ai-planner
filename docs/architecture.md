@@ -1,10 +1,10 @@
 ---
 title: "AI Planner architecture"
 owner: Nataly
-version: 0.4
-date: 2026-11-11
+version: 0.5
+date: 2026-11-16
 status: draft
-related: [PRD v0.2, approved 2026-11-05](PRD.md), [Evidence base](research/2026-10-30-evidence-base.md)
+related: [PRD v0.3, approved 2026-11-16](PRD.md), [User flows, approved 2026-11-16](design/01-user-flows/README.md), [Evidence base](research/2026-10-30-evidence-base.md)
 ---
 
 # Architecture: AI Planner
@@ -232,8 +232,10 @@ Every table that holds user data has `user_id`. The exceptions are app-level tab
   - its future planned blocks are soft-deleted (`state = deleted`) and its confirmed blocks are kept;
   - its past unconfirmed blocks get `state = dropped`. They stop asking for confirmation, leave the confirmation-rate denominator, and count as one postponement each.
 - **Undo a drop** within 7 days: the task returns, with the removed blocks whose start has not passed yet. The time of the others becomes unscheduled again. A restored block that now overlaps a hard event is flagged `may_be_affected` and is not blocked, because Must 1 treats an overlap as a warning.
-- **Delete a task:** it can be undone only while the undo message is shown (PRD 6, U3). The server sets `undo_until` (the deletion time plus the undo period, 15 seconds proposed, at least 10 per PRD 6, U3) and rejects `undoDelete` after it. The server cannot see when a client closes its message, so it does not wait for that. From `undo_until`, the API returns no title, checklist text or notes for the task and the export omits them, and the tick job then sets them to null in the database at the next successful tick (normally within 10 minutes). Until then the API already hides the text. The matching old and new values in `edit_history` are set to null at the same time, so the deleted text is not kept or exported. Backups made earlier can still hold the text until they expire within 30 days (Must 14). The task keeps its ID, type, flags, frozen week and outcome, so metrics and duration suggestions stay correct (Musts 6 and 14).
-- **Delete a block:** it is soft-deleted (`state = deleted`, `deleted_at`), so the event log still refers to a real row. It can be restored for 7 days. When that window closes, its note is set to null, along with the matching `edit_history` values.
+- **Delete a task:** it can be undone only while the undo message is shown (PRD 6, U3). The server sets `undo_until` to the deletion time plus the undo period (15 seconds, at least 10 per PRD 6, U3) and rejects `undoDelete` after it. While the Undo message stays open (paused on focus or hover, or kept by the "keep Undo messages" setting), the client calls `extendUndo` every 10 seconds. Each call moves `undo_until` to 15 seconds from now, never beyond the deletion time plus 10 minutes (PRD 6, U3). A client that closes its message, or disappears, simply stops extending, so the server never has to know when the message closed. From `undo_until`, the API returns no title, checklist text or notes for the task and the export omits them, and the tick job then sets them to null in the database at the next successful tick (normally within 10 minutes). Until then the API already hides the text. The matching old and new values in `edit_history` are set to null at the same time, so the deleted text is not kept or exported. Backups made earlier can still hold the text until they expire within 30 days (Must 14). The task keeps its ID, type, flags, frozen week and outcome, so metrics and duration suggestions stay correct (Musts 6 and 14).
+- **Mark a task done** (Must 6, v0.3): its future planned blocks are soft-deleted with a `removed_by_done` marker, which is not a postponement. Past unconfirmed blocks stay unconfirmed and keep asking for confirmation. Unticking within 7 days restores the marked blocks whose start has not passed. Their time otherwise becomes unscheduled again.
+- **End a series** (Must 18, v0.3): its future occurrences are soft-deleted as one group with the same `undo_until` mechanism as a task delete. `undoEndSeries` restores the series end date and the group. After the undo period, the occurrences follow the normal task-delete clean-up.
+- **Delete a block:** only unconfirmed blocks can be deleted (Must 6, v0.3); the API rejects deleting a confirmed one. It is soft-deleted (`state = deleted`, `deleted_at`), so the event log still refers to a real row. It can be restored for 7 days. When that window closes, its note is set to null, along with the matching `edit_history` values.
 - **Delete a task type:** its tasks are reassigned to "Other". Metrics recompute automatically, because they are derived.
 - **Undo and edit windows are 7 days**, except undo of a task delete, which lasts only for the undo period (at least 10 seconds, PRD 6, U3). `edit_history` is read-only after that, for audit and support (Must 12).
 
@@ -299,6 +301,7 @@ Every table that holds user data has `user_id`. The exceptions are app-level tab
    - **"It took X" with a start time** moves the block, is recorded as-is, and flags later blocks "may be affected". If the block would cross midnight, it ends at midnight and the full actual time is still stored.
    - **"Partly done"** stores the done time and sets the task's remaining estimate. A remainder under 15 minutes is planned as 15 minutes.
    - **"Didn't do it"** offers a new slot for the same block. Accepting it is a move of that block, and the metrics count one postponement.
+   - **Task already done** (Must 2, v0.3): "didn't do it" records the postponement but returns no slot offer, and "partly done" stores the done time without setting a remaining estimate.
    - **Auto-done:** when the last block of a task is confirmed "as planned" or "it took X", the task is marked done only if its unscheduled time (7.4: the estimate, or the remaining estimate, minus the time in its planned and confirmed blocks) is zero or less, it has no remainder, and the user does not untick it. If time remains unscheduled (for example a 3-hour task with one 1-hour block), the task stays open and the UI offers to plan the rest or mark it done.
 4. **Summary:** the confirmation view shows the planned-vs-real summary, with the block's planned length against its actual time, and the day's planned hours against its confirmed hours.
 5. **Edits:** allowed within 7 days of the block's end. Each is written to `edit_history` and to the event log.
@@ -319,6 +322,7 @@ Every table that holds user data has `user_id`. The exceptions are app-level tab
 - The service worker caches the app shell.
 - After each successful load, the client stores a snapshot in IndexedDB: blocks and hard events for the last 7 and next 14 days, plus open tasks. This window is a proposal for the open question in PRD 10. The snapshot holds task titles and notes and block times, which the user owns, and hard events as time ranges only, shown as "Busy". Imported event titles never reach IndexedDB. The snapshot is not encrypted on the device (revisit before Public, section 17).
 - Offline, the app shows that snapshot read-only, with a banner, and disables writes. This is Release 1b and first in the cut order.
+- **Release 1a, before the snapshot exists:** the client keeps what TanStack Query already holds in memory on screen, shows a "No connection" banner, and disables every command (capture, drag, confirm, undo, restore, settings). Nothing is queued. A 401 response opens the sign-in dialog over the current screen. If the pop-up is blocked, unsaved form text is kept in `sessionStorage` for that tab, restored after a full-page sign-in, and then deleted (PRD Must 12, v0.3).
 - **Clearing the snapshot.** The client deletes it on sign-out and on any 401 response from the API. A 401 happens after "sign out everywhere", after session expiry, and after delete-all (which deletes every session), so a device that comes back online clears its snapshot on its first request. A device that stays offline keeps its snapshot until then, and this limit cannot be removed from the server. The snapshot also expires locally 14 days after its last refresh.
 
 **7.9 Delete all and export (Must 14)**
@@ -388,11 +392,11 @@ REST-style JSON routes in Hono, grouped by module. Requests and responses are va
 
 | Area | Routes |
 |---|---|
-| tasks | create, update, list, markDone, setDoneFlag, drop, undoDrop, delete, undoDelete (while the message is shown), dismissUrgency |
+| tasks | create, update, list, markDone (removes future blocks), setDoneFlag (untick restores them within 7 days), drop, undoDrop, delete, undoDelete (while the message is shown), extendUndo (up to 10 minutes), dismissUrgency |
 | checklist | add, edit, reorder, tick, delete |
-| series | create, update (this or future), end, delete |
+| series | create, update (this or future), end, delete, undoEnd (while the message is shown) |
 | taskTypes | list, create, rename, setTimeWindow, delete |
-| blocks | listRange, create, move, resize, delete, restore (7 days), confirm, editConfirmation, restoreEdit (7 days) |
+| blocks | listRange, create, move, resize, delete (unconfirmed only), restore (7 days), confirm, editConfirmation, restoreEdit (7 days) |
 | planner | proposeSlots, durationSuggestion |
 | availability | getTemplate, setTemplate, setOverride, setHomeZone |
 | calendar | connect, listCalendars, selectCalendars, sync, listEvents |
@@ -1066,6 +1070,14 @@ Each PRD requirement mapped to the place it is designed and the tests that check
 ## Changelog
 
 Finding IDs in the entries below (C1, M1 and so on) refer to the strict requirements review reports run on this document. The numbers restart with each review, and the reports are not kept in the repo.
+- **v0.5 (2026-11-16, draft):** matched to PRD v0.3 and the approved user flows (`docs/design/01-user-flows/`).
+  - **6.4:** `extendUndo` keeps a task delete undoable while its Undo message is open, up to 10 minutes.
+  - **6.4:** marking a task done removes its future blocks, and unticking restores them.
+  - **6.4:** ending a series is undoable as a group.
+  - **6.4:** only unconfirmed blocks can be deleted.
+  - **7.5:** confirming an old block of a done task offers no slot and sets no remainder.
+  - **7.8:** Release 1a no-connection behavior, and the sign-in pop-up with its full-page fallback.
+  - **8:** the route list follows these changes.
 - **v0.4 (2026-11-11, draft):** fixed the findings of the second strict requirements review, with proposed defaults, and added the fact-check results of 2026-11-10 and a second fact-check pass of 2026-11-11. The second pass confirmed the earlier facts and corrected: the Vercel Schedules beta, the Neon driver modes and restore-branch expiry, the full list of parameters that cannot be combined with a Google sync token, GitHub schedule limits, 1-hour Vercel Hobby logs, the Article 50(2) date meaning, and several tool rows in 20.1.
   - **Third review (2026-11-11):** fixed the free-tier arithmetic by listing every database caller (the free Neon plan is now expected not to fit), dropped the GitHub backstop and moved the monitor to a Worker status route that does not touch the database (D25), corrected the Must 3 latency claim, moved the deletion ledger to R2 so a restore cannot bring back a deleted user, defined `updated_at` columns, all-day events, unscheduled time without an estimate and the `cold` flag, added data integrity tests, pass criteria for the section 16 checks, and 13 open questions in section 17 for the PRD owner, experts and legal.
   - **Sync (C1):** windowed full list per calendar, commit per calendar, lease lock, no open transaction across Google calls, and a Cloudflare cron backstop that the third review later dropped (7.2, 7.3, D22, D25).

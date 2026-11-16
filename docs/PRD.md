@@ -2,10 +2,10 @@
 title: "AI Planner PRD"
 working_title: "AI Planner"
 owner: Nataly
-version: 0.2
-date: 2026-11-05
+version: 0.3
+date: 2026-11-16
 status: approved
-approved_on: 2026-11-05
+approved_on: 2026-11-16
 ---
 
 # Product Requirements Document: AI Planner
@@ -64,9 +64,9 @@ If the answers are mostly no, candidate changes are writing blocks to Google Cal
 ### Glossary
 - **Block:** a task, or a part of a task, placed at a specific time on the app's calendar. A task has one or more blocks. A block is at least 15 minutes long and cannot cross midnight in the home zone.
 - **Placeholder:** a rough entry on the month or year view, without a precise time.
-- **Planning slot:** a block reserved for adding detail to a placeholder later.
+- **Planning slot:** a block reserved for adding detail to a placeholder later. It is a normal block of an automatically created task named "Plan: <placeholder>", and it counts in every metric like any task.
 - **Hard event:** an imported Google Calendar event that blocks time (see Must 3).
-- **Unconfirmed block:** a block whose end time has passed and has not been confirmed.
+- **Unconfirmed block:** a block whose end time has passed and has not been confirmed. Once its 7-day confirmation window closes, it is shown as "Unconfirmed, window closed": locked, no longer asking for confirmation, and excluded from insights.
 - **Missed block:** an unconfirmed block that is 30 minutes past its end time. It triggers the reschedule prompt (see Should, postponement handling).
 - **Postponement:** a block that did not happen at its planned time. It is counted once per miss.
   - It happens when a block whose start has passed is confirmed "didn't do it", is moved to a new time (a missed block that is rescheduled, or any past unconfirmed block that is moved), or is marked "dropped" because its task was dropped or deleted (Must 6).
@@ -110,12 +110,17 @@ Release stages:
    - Given a block that stays unconfirmed, then the next time the user opens the app after the end of day, an in-app banner asks to confirm it, and the block stays "unconfirmed" until then. (Must 11 adds notifications when a block starts and when it ends, while the app is open.) A block can be confirmed late for up to 7 days after its end.
    - A confirmed block can be edited for up to 7 days after its end. The edit is recorded and the metrics update.
    - Unconfirmed blocks are excluded from insights and duration suggestions.
+   - "It took X" and the time done for "partly done" accept 1 minute to 24 hours.
+   - Given the block was moved or resized on another device after the user opened it, when the user confirms, then the app shows the new time and asks the user to confirm again. This is the one exception to "the later edit wins" (Must 12).
+   - Given the task is already marked done, then confirming one of its past blocks never plans more work: "didn't do it" counts as a postponement but offers no new slot, and "partly done" records the time done with no remainder.
+   - Unconfirmed blocks are listed oldest first in a "To confirm" list. The notification, the in-app prompt and the end-of-day banner open it, and a block in the calendar can also be confirmed directly. A block that is 30 minutes past its end is labelled "Missed" there; the reschedule prompt for missed blocks stays a Should (postponement handling).
 3. **Google Calendar import, read only.** Imported events that block time, under the rules below, are hard events.
    - The user chooses which of the account's calendars are imported. Recurring events are expanded per instance.
    - The suggester never places a block over a hard event. Manual placement over one follows Must 1 (warning and confirm tap).
    - Declined and cancelled events do not block time. Tentative events do block time. All-day events block time only if marked busy, and then they block the whole day. Timed events marked "free" do not block time. Events with no response yet block time.
    - Given a new or changed Google event, then it appears in the app within 15 minutes, and the user can refresh manually.
    - Given Google Calendar is unavailable or access is revoked, then the app keeps showing the last imported events marked "as of <time>", shows a reconnect prompt, and warns when planning that events may be out of date.
+   - Given the user declines calendar access on Google's consent screen, or skips connecting it in first setup, then sign-in still succeeds and the calendar can be connected later from Settings.
    - The app and assistant never write to Google Calendar.
 4. **Task priority flags.** Urgent and important are two independent yes/no flags, so a task can be both, either one, or neither (the four Eisenhower quadrants). A task can also have an optional deadline.
    - A deadline is a date that ends at the end of the day, and today counts as a remaining day. Given a task with a deadline where the calendar days remaining are at most the estimated duration plus 2 days, then the app suggests marking it urgent. The user keeps the final say. A dismissed suggestion stays dismissed for that task, and the task is then not treated as urgent by the suggester (Must 8). Changing the deadline clears the dismissal.
@@ -123,19 +128,21 @@ Release stages:
    - Given no estimate, only the "within 2 days of the deadline" part applies.
 5. **Weekly availability template:** working hours, focus times, personal time, sleep and meals, with per-day overrides.
    - Given a template, when the suggester looks for a slot, then it proposes only available time, as defined in the glossary.
-   - Given a per-day override, then it applies to that date only.
+   - Given a per-day override, then it applies to that date only. "Day off" is an override that clears work and focus time only.
    - The template follows a single home time zone set in settings.
+   - First setup offers a prefilled starter template (Mon–Fri 09–17 work with 09–11 focus, evenings personal, meals and sleep), accepted with one tap or edited first. The template step cannot be skipped.
 6. **Tasks are created inside the app.**
    - Given a title, when the user saves, then the task exists with an optional estimate, urgent and important flags, deadline and task type.
    - A task has exactly one task type, chosen from a user-editable list. The list starts with Work, Personal, Admin and Other. A task captured quickly (Must 7) gets "Other". New types can be created inline.
    - Each task type uses work time, personal time or any time, which decides the available time the suggester may use for it. Defaults: Work and Admin use work time, Personal uses personal time, Other uses any. New types use any until changed.
-   - Deleting a type moves its tasks and history to "Other", and the metrics are recomputed.
+   - Deleting a type moves its tasks and history to "Other", and the metrics are recomputed. It asks inline first and has no undo. "Other" cannot be deleted.
    - A task can have one or more blocks, and it is done when the user marks it done. A task with an unplanned remainder (see Must 2) is not marked done automatically.
+   - Given the user marks a task done, then its future planned blocks are removed (not a postponement), its past unconfirmed blocks stay in the "To confirm" list, and its confirmed blocks are unchanged. Unticking it within 7 days restores the removed blocks whose start has not passed.
    - Given a task is dropped, then its future planned blocks are removed, its confirmed blocks stay, and it counts as not done. A drop can be undone for 7 days. Undo restores the task and the removed blocks whose start has not passed yet. The time of the others becomes unscheduled time again.
    - Given a task is dropped or deleted, then its past unconfirmed blocks are marked "dropped". They stop asking for confirmation, are left out of the confirmation rate, and each counts as one postponement (see glossary).
    - Deleting a task can be undone only from the undo message (section 6, U3). After that, its title is removed (Must 14). Dropping is the way to keep a task recoverable for 7 days. A deleted single block can be restored for 7 days.
    - Given a task is deleted, then its future blocks are removed, its confirmed blocks stay in the estimate error and in duration suggestions, and it counts as not done. Dropped and deleted tasks stay in the metrics until the user runs "delete all".
-   - A single block can also be deleted.
+   - A single unconfirmed block can also be deleted. Confirmed blocks cannot be deleted, because estimates and metrics depend on them; a wrong confirmation is edited instead (Must 2).
 7. **Fast capture.**
    - A task can be saved in at most 3 taps, or one typed line, counted from opening the capture entry. The test is a step count.
 8. **Tasks to blocks.** A rule-based suggester proposes slots in your free time without needing the LLM. You accept or adjust.
@@ -164,12 +171,15 @@ Release stages:
     - A web notification fires when a block starts while the app or browser is open.
     - Given a block ends while the app is open, then a notification asks the user to confirm it. If notifications are off, an in-app prompt is shown instead.
     - If notification permission is denied, the app shows an in-app prompt.
+    - Permission is asked after the first block is saved, never on app load. "Not now" waits 7 days before asking again, and Settings can turn reminders on at any time.
     - Known limit: web notifications do not fire when the browser is closed. Reliable background delivery waits for the mobile app.
 12. **Single-user account with data synced across devices.**
     - Sign-in is with a Google account (the same one used for Calendar). It is part of Release 1a.
     - Only Google accounts on an allow-list can sign in. In the first version the list holds only the owner. Given any other account, then sign-in is refused with an "invite only" message and no data is stored. This is part of Release 1a.
-    - If the same block is edited on two devices, the later edit, by server receive time, wins. A block's start and end are one unit, and other fields are resolved per field. The earlier version is kept in an edit history for 30 days. The history is read-only, for audit and support. An overwritten edit can be restored for 7 days, the same window as other undo and edit actions.
-    - Offline, the app shows a read-only cached view.
+    - If the same block is edited on two devices, the later edit, by server receive time, wins. The one exception is confirming a block that was moved on another device (Must 2). A block's start and end are one unit, and other fields are resolved per field. The earlier version is kept in an edit history for 30 days. The history is read-only, for audit and support. An overwritten edit can be restored for 7 days, the same window as other undo and edit actions.
+    - Offline, the app shows a read-only cached view (Release 1b).
+    - Before the cached view exists (Release 1a), losing the connection keeps the current screen visible with a banner, disables every action that changes data, and keeps typed text in its field.
+    - Given the session ends while the user is working, then a dialog offers sign-in in a pop-up over the current screen, so typed text is kept. If the browser blocks the pop-up, sign-in happens on a full page, unsaved text is kept in that browser tab only, and the app returns to the same screen with the text restored.
     - Every record carries a user ID.
     - **Time zones.**
       - Blocks are always created and stored as wall-clock times in the home zone, together with their absolute instants. This holds even when the device is in another zone.
@@ -181,7 +191,7 @@ Release stages:
       - future planned blocks keep their wall-clock time in the new zone, which is not a postponement;
       - past blocks are unchanged.
 13. **Assistant data minimization and safety.** The assistant is not released without all of the following.
-    - **Minimization.** The assistant sees only the fields a request needs. Data the assistant reads through tools counts as part of the request. By default, a request carries durations, times, flags and an opaque task-type ID only. Task titles, notes, checklist steps, event titles and task-type names are off until the user turns each one on, per field. Event descriptions and attendees are never sent.
+    - **Minimization.** The assistant sees only the fields a request needs. Data the assistant reads through tools counts as part of the request. By default, a request carries durations, times, flags and an opaque task-type ID only. Task titles, notes, checklist steps, event titles and task-type names are off until the user turns each one on, per field. Event descriptions and attendees are never sent. The switches are shown once, on the first open of the chat, and then live only in Settings; closing that screen without choosing keeps them all off, and the chat never asks the user to share more.
     - Test: given a field that is off, then it never appears in the payload sent to the LLM.
     - **Untrusted text.** Calendar text, task titles, notes and task-type names are data, never instructions. Given such text contains instructions, the assistant does not follow them.
     - **Approval.** Given any change proposed by the assistant, then it is applied only after the user accepts it in the UI. Every rule that applies to planner actions, including hard-event protection (Must 1), applies to assistant actions in the same way. The assistant has no way to delete all data, export, change settings or change the calendar connection.
@@ -211,7 +221,7 @@ Release stages:
       
       No case may cause an unapproved change, a rule bypass, a hidden field in a reply or payload, an ungrounded number, or a reply that breaks the scope or wellbeing rules.
 14. **Delete and export.**
-    - Delete all asks for confirmation, then removes the user's data from the app database immediately. Any backups that exist are purged within 30 days. It also deletes cached Google events and the recorded metric events, and revokes the OAuth tokens.
+    - Delete all asks for confirmation by typing "delete", then removes the user's data from the app database immediately. Any backups that exist are purged within 30 days. It also deletes cached Google events and the recorded metric events, and revokes the OAuth tokens.
     - Export produces a JSON file of:
       - tasks, blocks, confirmations and task types;
       - the availability template and settings;
@@ -256,13 +266,13 @@ Release stages:
     - **Fixed-time occurrences** are created with their block at that time. Given that time overlaps a hard event, another block or a recovery buffer, then the occurrence is still created, flagged "may be affected", and shown for the user to resolve. It is never moved silently.
     - **Flexible occurrences** are created without blocks, one task per required time in the week. The suggester (Must 8) includes them in its runs by default, places at most one occurrence of a series per day, spreads them across the allowed days, and respects the time-of-day limit.
     - **No pile-up.** An occurrence that is not done by the end of its period counts as not done. It is not carried into the next period, and the next occurrence is created as normal.
-    - **Editing.** Changing a recurring task offers "this occurrence" or "this and future occurrences". Changes never touch past or confirmed occurrences. Ending or deleting a series removes its future occurrences and keeps past ones.
+    - **Editing.** Changing a recurring task offers "this occurrence" or "this and future occurrences". Changes never touch past or confirmed occurrences. Ending or deleting a series removes its future occurrences and keeps past ones. It asks no question and can be undone from the Undo message, like deleting tasks (section 6, U3).
     - Duration suggestions (Must 10) treat occurrences as tasks of their type.
 
 ### Should
 - Postponement handling: a missed block triggers a prompt to reschedule it to a specific new slot instead of drifting, and the app counts postponements. A task postponed three times prompts "split it, shrink it, or drop it?". The user picks the new slot, with suggester or assistant help. Choosing a slot is manual or assisted; fully automatic replanning stays in Later.
 - Overload check: the app warns you before the week starts if planned work exceeds your free time.
-- Month and year planning with placeholders and reserved planning slots, plus light reminders when a planning slot arrives.
+- Month and year planning with placeholders and reserved planning slots, plus light reminders when a planning slot arrives. A placeholder that has been detailed stays on the month and year views as a summary linked to its tasks. Deleting a placeholder keeps its tasks as ordinary tasks.
 - Summaries for a day, week, month or year, shown when the user asks (for example "how was my week?" in the chat or a summary button), not pushed automatically. A summary covers:
   - how many tasks were planned, completed and postponed;
   - hours spent in total and by task type;
@@ -382,8 +392,13 @@ Must 16 sets the target (WCAG 2.2 level AA). In addition:
 - **U2 Responsive (1a).** Works from 320 px wide, in portrait and landscape. Breakpoints: phone under 640 px, tablet 640–1024 px, desktop above 1024 px.
 - **U3 Feedback and recovery (1a).**
   - Every action shows its result.
-  - Deleting a block or task, and dropping a task, can be undone from a message shown for at least 10 seconds. Dropped tasks and deleted blocks can also be restored for 7 days afterwards (Must 6).
-  - Confirmation dialogs are used only for delete all and the overlap warning (Must 1).
+  - Deleting a block or task, dropping a task, capturing a task, marking a task done and ending a series can be undone from a message shown for at least 10 seconds (15 seconds by default). Dropped tasks and deleted blocks can also be restored for 7 days afterwards (Must 6).
+  - The Undo message meets WCAG 2.2.1 (timing adjustable):
+    - its timer pauses while it has keyboard focus or the pointer is over it;
+    - Ctrl+Z (Cmd+Z) undoes the latest action outside text fields, and in the empty capture field right after a save. In a field with typing to undo, it undoes the typing;
+    - a setting keeps Undo messages until the user closes them, for at most 10 minutes;
+    - actions made while a message is open are grouped into it, rather than stacked.
+  - Confirmation dialogs are used only for delete all and the overlap warning (Must 1). Deleting a task type or a placeholder, and disconnecting Google Calendar, ask inline instead.
 - **U4 Forms (1a).** Inline validation, autofill hints, and native input types for dates, times and numbers.
 - **U5 Language (1a).** Plain language, using the terms in the glossary (section 4) consistently.
 - **U6 Internationalization (1a).** English only, but ready for translation:
@@ -507,13 +522,25 @@ Each item is owned by the owner (Nataly), and no decision date is set yet. The f
 - The checks listed in section 8 (OAuth verification, token expiry, iOS notifications). Due before Release 1a development starts, with the plan B listed there. Blocks Release 1a.
 - Product name and domain. Blocks the public website (section 6.10). Candidates so far: Second Draft, Strata (needs a modifier), Reckon. Kairo is rejected because of an existing day-planner app of that name.
 - Approval of the architecture (`docs/architecture.md`, draft).
-- The offline cache window, and fast capture while offline.
-- First-run flow (default proposal: ask the owner to connect Calendar and set the availability template; until a template exists the suggester proposes nothing).
+- The offline cache window (Release 1b), and fast capture while offline. Release 1a behavior without a connection is decided (Must 12).
 - Who curates the evidence list, and its rating scale.
 - Evidence gaps: Pomodoro and 52/17, chronotype, sleep, deep-work block length, weekly review rituals.
-- Behavior not yet defined: notification deduplication across devices; the availability template's behavior when it conflicts with calendar events; limits on tasks, blocks and history length; the LLM cost cap and rate limit values; which languages to add after English; time-zone handling of imported events; what a block shows after its 7-day confirmation window closes.
+- Behavior not yet defined: notification deduplication across devices; the availability template's behavior when it conflicts with calendar events; limits on tasks, blocks and history length; the LLM cost cap and rate limit values; which languages to add after English; time-zone handling of imported events; what deleting a past unconfirmed block does to the confirmation rate.
 
 ## Changelog
+- **v0.3 (2026-11-16, approved 2026-11-16):** decisions from design step 1, the user flows (`docs/design/01-user-flows/`).
+  - **Closed open questions:** the first-run flow (Must 5, starter template) and what a block shows after its 7-day window (glossary, "Unconfirmed, window closed").
+  - **Must 2:** a "To confirm" list plus inline confirmation, and a "Missed" label in 1a. The reschedule prompt stays a Should. Input limits for "it took X" and "partly done". Confirming a block moved on another device asks again. Confirming an old block of a done task never plans more work.
+  - **Must 3:** declining calendar access, or skipping it, still signs in, and the calendar can be connected later.
+  - **Must 5:** a starter template, and "Day off" clears work and focus time only.
+  - **Must 6:** marking done removes future blocks and restores them on untick. Only unconfirmed blocks can be deleted. Task type delete asks inline, and "Other" cannot be deleted.
+  - **Must 11:** when notification permission is asked.
+  - **Must 12:** the exception to "later edit wins", 1a behavior without a connection, and sign-in when the session ends mid-task.
+  - **Must 13:** a one-time data switch screen.
+  - **Must 14:** typing "delete" to confirm delete all.
+  - **Must 18:** ending a series can be undone.
+  - **Section 6, U3:** a wider Undo list, with WCAG 2.2.1 timing, a Ctrl+Z rule, a setting and grouping. Inline confirmation for type, placeholder and calendar disconnect.
+  - **Glossary and Should:** planning slots are normal blocks of "Plan: …" tasks counted in metrics, and detailed placeholders stay as linked summaries.
 - **v0.2 (2026-11-05, approved 2026-11-05):** added Must 16 (accessibility, WCAG 2.2 AA) to Release 1a. Extended Must 13 from data minimization to assistant safety: prompt-injection resistance, approval of every change, own data only, safe replies, limits, and EU AI Act transparency and no-manipulation rules with a compliance check. Removed accessibility from the open questions. Added section 6, non-functional requirements (accessibility, performance, security, privacy, usability, compatibility, reliability, quality, Definition of Done), for use in the EU and US; later sections renumbered. Language decided: English, ready for translation. Added a public, search-indexed website after 1b, with the app staying invite-only (section 6.10), and in-house feature flags (R6). Extended Must 13 with:
   - trustworthy approval and grounded answers;
   - hidden-text cleaning;

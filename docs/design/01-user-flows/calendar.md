@@ -116,3 +116,29 @@ flowchart LR
 **Accessibility**
 - The banner stays until the problem is fixed. It is announced once, and its button is reachable by Tab.
 - Disconnect is a plain button with an inline "Are you sure?" row rather than a dialog (PRD U3 allows dialogs only for delete all and overlaps).
+
+## Screens
+
+### Calendar (1a)
+
+- **Flows:** Choose calendars, Refresh and stale events, Connect, reconnect or disconnect.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Calendar                │ h1
+│ ┌ Google Calendar disconnected.  │ banner, only when revoked
+│ │ Events as of 10:42. ① Reconnect│
+│ Connected as your Google account │
+│ ② ☑ Personal                     │
+│ ③ ☑ Work                         │
+│ ④ ☐ Birthdays                    │
+│ Last updated 10:42  ⑤ Refresh    │
+│ ⑥ Disconnect                     │
+│ ┌ Disconnect? Imported events are│ inline confirm row
+│ │ removed. ⑦ No  ⑧ Yes, disconnect│
+└──────────────────────────────────┘
+```
+
+- **Not connected:** the list is replaced by "Google Calendar isn't connected. Events from it count as busy time." and ① Connect.
+- **Screen reader:** checkboxes are named after the calendars. "Importing…" and "Events updated" are announced only for actions the user started.
+- **States:** import failed per calendar: "Couldn't import Work. Retry." next to that row.

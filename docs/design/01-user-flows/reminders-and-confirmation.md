@@ -235,3 +235,70 @@ flowchart LR
 
 **Accessibility**
 - Both prompts are inline cards that do not take focus, are announced politely, and can be dismissed (Must 13, no pressure).
+
+## Screens
+
+The frame and navigation are in the [README](README.md#screens-frame-navigation-and-shared-parts).
+
+### To confirm (1a)
+
+- **Flows:** Confirm a block, Edit a confirmation, Postponement prompts (Should).
+- **Phone:** the Confirm tab. **Tablet and desktop:** the To confirm panel from the rail, beside the planner.
+
+```
+┌──────────────────────────────────┐
+│ To confirm · 2 left              │ h1
+├──────────────────────────────────┤
+│ ┌ Write report                   │ group per block
+│ │ Mon 16 Nov, 09:00–10:00 · Missed│
+│ │ ① As planned   ② It took X    │ 2 × 2, each ≥ 44 × 44 px
+│ │ ③ Partly done  ④ Didn't do it │
+│ │ ⑤ Add a note (optional)        │
+│ │ Closes in 5 days               │
+│ └                                │
+│ ┌ Tax return · Tue 14:00–15:00   │
+│ │ ⑥ … same four options          │
+├──────────────────────────────────┤
+│ tab bar                          │
+└──────────────────────────────────┘
+```
+
+| # | Element | HTML / role | Accessible name | Req |
+|---|---|---|---|---|
+| card | Block group | group with heading | "Write report, Monday 16 November, 09:00 to 10:00, missed" | Must 2 |
+| ① | As planned | button | "As planned" | Must 2, A4 |
+| ②③ | It took X, Partly done | button, expands the card's form | "It took a different time", "Partly done" | Must 2 |
+| ④ | Didn't do it | button | "Didn't do it" | Must 2 |
+| ⑤ | Note | button, opens a one-line text field | "Add a note" | Must 2 |
+
+- **After choosing:**
+  - **It took X** expands the card with "Actual time" (hours and minutes) and "Actual start (optional)", then Save.
+  - **Partly done** expands with "Time done" and "Time left". For a task already done, only "Time done".
+  - **Didn't do it** shows the offered slot: "Move to Tue 14:00?" with Move and Not now. For a task already done, it shows "Write report is done, so no new time is needed."
+  - **Saved:** the card shows the summary, "Planned 1 h, real 1 h 20. Today 5 h planned, 3 h confirmed", for 4 seconds, then leaves the list.
+  - **Auto-done:** "Write report marked done" with Untick.
+- **Screen reader:** focus starts on the first card's heading. After saving, "Confirmed, 1 left" is announced and focus moves to the next card's heading; when the list empties, to the "Nothing to confirm" heading.
+- **States:**
+  - Empty: "Nothing to confirm."
+  - Moved on another device: "This block was moved to 14:00–15:00 on another device. Confirm against the new time?" inside the card, with the options again.
+  - Input errors: inline under the field, entry kept.
+  - Save failed: "Couldn't save. Retry." in the card.
+
+### Confirm from the calendar (1a)
+
+- **Flows:** Confirm a block, calendar entry.
+- **All sizes:** tapping an Unconfirmed or Missed block opens the same card as a bottom sheet (phone) or pop-over (desktop). It behaves exactly like a To confirm card.
+
+### Reminders (1a)
+
+- **Flows:** Turn on reminders, Block reminders.
+- **Turn on reminders:** an inline card at the top of the day view after the first block is saved: "Get a reminder when blocks start and end? Only while the app is open. ① Turn on ② Not now". It is a region named "Reminders", announced politely, never focused automatically.
+- **Block reminders without notifications:** an in-app reminder strip under the toolbar, "Write report starts now, 09:00–10:00", and at the end "How did Write report go? ① Confirm". It is announced politely and stays until dismissed or acted on.
+- **Notifications on:** the browser notification shows the same text. Clicking it opens To confirm at that block.
+- **Settings:** More, then Notifications: a switch "Block reminders", and, when the browser blocks notifications, a short explanation of how to allow them in the browser.
+
+### Postponement prompts (Should)
+
+- **Missed block:** an inline card at the top of To confirm: "Write report was missed. ① Move to Tue 14:00 ② Other times ③ Later".
+- **Third postponement:** an inline card in task details: "Tax return was postponed 3 times. ① Split it ② Shrink it ③ Drop it ④ Keep as is".
+- Both are announced politely, never take focus, and can be dismissed (Must 13).

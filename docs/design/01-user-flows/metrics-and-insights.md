@@ -133,3 +133,47 @@ flowchart LR
 
 **Accessibility**
 - Tips open as an expandable section, not a pop-over, so they reflow at 200% zoom.
+
+## Screens
+
+### Metrics (1a)
+
+- **Flows:** Weekly metrics; Summaries (Should) and Evidence tips (Should) open from here.
+
+```
+┌──────────────────────────────────┐
+│ Metrics                          │ h1
+│ ① ‹ ② Week 47 · 16–22 Nov ③ ›    │
+│ Provisional until 6 Dec          │ text label
+│ ┌ Completion   ┐┌ Confirmation ┐ │ tiles, 2 per row
+│ │ 72% ▲ from 65││ 81%          │ │
+│ ├ Postponed    ┤├ Estimate err.┤ │
+│ │ 4 · 2 missed ││ 22% median   │ │
+│ ├ Early moves  ┤├ Scheduled    ┤ │
+│ ├ Planning time┤├ Load         ┤ │
+│ ④ Trend: Completion ▾            │
+│ [ line chart, baseline weeks shaded and labelled ]│
+│ ⑤ Show as table                  │
+│ ⑥ Summary                        │ Should
+├──────────────────────────────────┤
+│ tab bar                          │
+└──────────────────────────────────┘
+```
+
+- **Tablet and desktop:** eight tiles in one or two rows of four, then the trend chart.
+- **Elements:** each tile is a button that selects its metric for the trend, named "Completion rate 72 percent, up from 65, show trend". ⑤ toggles a table with the same numbers. Baseline and Provisional are text labels.
+- **Screen reader:** the chart has a text summary as its accessible name ("Completion rate over 8 weeks, from 58 to 72 percent"); the table is the full alternative (PRD A2).
+- **States:**
+  - Before the clock starts: "Numbers start on the first Monday after you've used the app on 5 of 7 days. So far: 3 of 7."
+  - Loading: tile skeletons.
+  - Error: "Couldn't load your metrics. Retry."
+
+### Summary (Should)
+
+- **Phone:** a bottom sheet from Summary. **Desktop:** a panel.
+- **Content:** headed sections: Tasks (planned, completed, postponed), Hours (total and by type, as a list), Planned vs. actual, A few facts. All text, read in order.
+
+### Tips (Should)
+
+- **From a "Why?" link:** an expandable section under the setting, with the tip, its source and its evidence rating, and "Hide tip".
+- **Tips page:** More, then Tips: a list of all tips, each expandable.

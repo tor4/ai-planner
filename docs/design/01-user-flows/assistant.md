@@ -132,3 +132,54 @@ flowchart LR
 **Accessibility**
 - The card is a group with a heading, a list of changes, and Accept and Reject buttons in that order.
 - After a choice, "Applied" or "Rejected" is announced, and focus returns to the chat input.
+
+## Screens
+
+### What the assistant can see (Should)
+
+```
+┌──────────────────────────────┐
+│ What the assistant can see   │ dialog · h2
+│ Always sent: times, durations,│
+│ flags, a type number.        │
+│ Never sent: event            │
+│ descriptions, attendees.     │
+│ ① Task titles          ○     │ switches, off
+│ ② Notes                ○     │
+│ ③ Checklist steps      ○     │
+│ ④ Event titles         ○     │
+│ ⑤ Task-type names      ○     │
+│ Processed by [provider], EU. │
+│ ⑥ How the assistant works    │ link
+│ ⑦ Save                       │
+└──────────────────────────────┘
+```
+
+- **Shown:** once, on the first open of the chat; afterwards as More, then Assistant data, with the same content.
+
+### Chat (Should)
+
+- **Phone:** a full screen from the planner's toolbar. **Tablet and desktop:** the Assistant panel from the rail.
+
+```
+┌──────────────────────────────────┐
+│ AI assistant            ① ✕      │ h1 (phone) / h2 (panel)
+│ You: fit these in this week      │
+│ Based on your template and 4     │ reply, plain text
+│ open tasks: …                    │
+│ ┌ Assistant suggestion · 3 changes│ proposal card
+│ │ Write report → Tue 10:00–12:00 │
+│ │ Call bank → Tue 13:00–13:30    │
+│ │ Tax return → Wed 09:00–11:00   │
+│ │ ② Accept  ③ Reject             │
+│ ④ [ Ask about your plan        ] │
+│ Assistant sees: times, durations,│
+│ flags. Titles: off · ⑤ Change in Settings│
+└──────────────────────────────────┘
+```
+
+- **Screen reader:** the panel is a region named "AI assistant". A finished reply is announced once. The proposal card is a group with a heading and a list of changes, read before its buttons.
+- **States:**
+  - Empty: example questions and "Chats are kept 30 days."
+  - Working: "Reading your data…"
+  - Unavailable: "Assistant unavailable. The planner works as usual." and the input disabled.

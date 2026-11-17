@@ -112,3 +112,43 @@ flowchart LR
 
 **Accessibility**
 - The menu items are labelled with the placeholder's title, for example "Delete Vacation".
+
+## Screens
+
+### Month (Should)
+
+- **Flows:** Add a placeholder and a planning slot, Detail a placeholder, Edit or delete a placeholder.
+- **All sizes:** a month grid, Monday first, with placeholders as bars across their rough dates, and a "Show as list" switch.
+
+```
+┌──────────────────────────────────┐
+│ ① ‹ ② November 2026 ③ ›  ④ + Add │ h1, + Add rough plan
+│ ⑤ Grid | List                    │
+│ Mo Tu We Th Fr Sa Su             │
+│ ▬▬▬ ⑥ Vacation · 3 tasks planned │ bar
+│ ▭▭ ⑦ Q3 report · Not detailed yet│
+└──────────────────────────────────┘
+```
+
+- **Elements:** each placeholder is a button named "Vacation, 10 to 24 July, 3 tasks planned". The list view shows the same placeholders by date.
+- **States:** empty: "Nothing planned for this month. Add a rough plan, for example a vacation."
+
+### Year (Should)
+
+- Twelve months in a grid (3 × 4 on desktop, 1 column on phone), each with its placeholder bars, and the same list switch.
+
+### Rough plan (Should)
+
+- **Phone:** a bottom sheet. **Desktop:** a pop-over.
+
+```
+┌──────────────────────────────────┐
+│ Vacation                    ① ✕  │ dialog · h2
+│ ② Title  [ Vacation ]            │
+│ ③ Rough dates [ mid-July ]       │
+│ ④ Book time to plan it ›         │ creates "Plan: Vacation"
+│ 3 tasks planned ⑤ ›              │ links to them
+│ ⑥ Save                           │
+│ ⑦ Delete, keep its tasks         │ asks inline first
+└──────────────────────────────────┘
+```

@@ -139,3 +139,88 @@ flowchart LR
 
 **Accessibility**
 - Native number inputs with visible units and limits in the label.
+
+## Screens
+
+Settings screens use the frame in the [README](README.md#screens-frame-navigation-and-shared-parts): on phone a screen from More with "‹ Back", on tablet and desktop a section of Settings with a sidebar.
+
+### Weekly template (1a)
+
+- **Flows:** Edit the weekly template, First setup step 3.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Weekly template         │ h1
+│ ① Mon ② Tue ③ Wed … ⑦ Sun        │ tab list of days
+│ Monday                           │ h2
+│ ⑧ Work      [09:00]–[17:00]  ⑨ ⋯ │
+│ ⑩ Focus     [09:00]–[11:00]  ⑪ ⋯ │
+│ ⑫ Meal      [12:30]–[13:15]  ⑬ ⋯ │
+│ ⑭ Personal  [18:00]–[21:00]  ⑮ ⋯ │
+│ ⑯ Sleep     [23:00]–[07:00]  ⑰ ⋯ │
+│ ⑱ + Add range   ⑲ Copy to days   │
+│ ▭▭▭▭ week strip (summary only)   │ aria-hidden
+└──────────────────────────────────┘
+```
+
+- **Elements:** each range row is a fieldset named "Work, Monday" with a kind select and two native time inputs. Its menu holds Delete. Copy to days opens checkboxes for the weekdays.
+- **Screen reader:** the week strip is decorative; the list is the content. Changing a range announces nothing; errors are announced.
+- **States:** overlapping ranges show the error under the row; the entry stays.
+
+### Change this day (1a)
+
+- **Flows:** Override a single day.
+- **Phone:** a bottom sheet from the day header. **Desktop:** a pop-over.
+
+```
+┌──────────────────────────────────┐
+│ Change Mon 16 Nov           ① ✕  │ dialog · h2
+│ ② ☐ Day off                      │ clears work and focus
+│ ③ Work  [10:00]–[17:00]          │ prefilled from template
+│ ④ Focus [10:00]–[11:00]          │
+│ ⑤ + Add range                    │
+│ ⑥ Save                           │ primary
+│ ⑦ Reset to template              │
+└──────────────────────────────────┘
+```
+
+- **After saving:** the day header shows "Changed" as text.
+
+### Time zone (1a)
+
+- **Flows:** Change the home time zone.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Time zone               │ h1
+│ Device: New York · Plans: Berlin │ only when they differ
+│ ① Home time zone [ Europe/Berlin ]│ searchable
+│ What changes                     │ h2, after a new pick
+│ Future blocks keep their clock   │
+│ times. Past blocks and metrics   │
+│ don't change. 3 blocks may be    │
+│ affected.                        │
+│ ② Apply   ③ Cancel               │
+└──────────────────────────────────┘
+```
+
+- **Screen reader:** the summary is read before Apply. Applying announces "Home time zone changed to New York".
+
+### Planning settings (1a)
+
+- **Flows:** Planning settings.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Planning                │ h1
+│ ① Buffer after long meetings     │
+│   [ 10 ] minutes (0–60)          │
+│ ② A meeting is long from         │
+│   [ 60 ] minutes                 │
+│ ③ Default task duration          │
+│   [ 30 ] minutes                 │
+│ ④ Why a buffer?                  │ Should: evidence tip
+└──────────────────────────────────┘
+```
+
+- **Elements:** native number inputs with the unit and limits in the label.

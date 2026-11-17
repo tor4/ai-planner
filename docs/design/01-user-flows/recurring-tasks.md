@@ -143,3 +143,45 @@ flowchart LR
 
 **Accessibility**
 - After ending, focus moves to the next task in the list, and "Gym ended, 4 occurrences removed" is announced.
+
+## Screens
+
+### Repeat (1b)
+
+- **Flows:** Create a repeating task, Edit a series, End a series.
+- **Phone:** a screen from task details. **Desktop:** a pop-over from the Repeat row.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Repeat · Gym            │ h1
+│ ① Repeats [ Weekly ▾ ]           │ daily, weekdays, weekly, every N weeks, monthly
+│ ② ◉ Weekly target ○ Fixed time   │ radio group
+│ ③ Times a week [ 3 ]             │ target only
+│ ④ Days  ☑Mon ☐Tue ☑Wed ☐Thu ☑Fri │
+│ ⑤ Time of day [ Morning ▾ ]      │
+│ ⑥ Ends [ Never ▾ ]               │
+│ Next: Mon 16, Wed 18, Fri 20 …   │ preview, live region
+│ ⑦ Save                           │ primary
+│ ⑧ End series                     │ only for an existing series
+└──────────────────────────────────┘
+```
+
+- **Fixed time** replaces ③–⑤ with Start and End time inputs.
+- **States:** an invalid rule shows the error under its field; End series shows "Gym ended · 4 occurrences removed · Undo".
+
+### Needs a decision (1b)
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Needs a decision · 2    │ h1
+│ ┌ Gym · Mon 08:00–08:30          │ group
+│ │ Overlaps Team call 08:00–09:00 │
+│ │ ① Move  ② Keep  ③ Skip         │
+│ ┌ Standup · Tue 09:00            │
+│ │ Overlaps a recovery buffer     │
+│ │ ④ Move  ⑤ Keep  ⑥ Skip         │
+└──────────────────────────────────┘
+```
+
+- **Entry:** the "Needs a decision" filter in Tasks and the "May be affected" label on the block.
+- **States:** empty: "Nothing needs a decision."

@@ -94,3 +94,51 @@ flowchart LR
 - Setup is a sequence of steps with "Step 2 of 3" in the heading. The total is counted for the device: 3 steps (calendar, time zone, template), or 4 on iPhone and iPad when the Home Screen step is needed.
 - Each step moves focus to its heading.
 - The template editor follows [availability.md](availability.md).
+
+## Screens
+
+### Sign in (1a)
+
+```
+┌──────────────────────────────────┐
+│                                  │
+│ [App name]                       │ h1
+│ Plan your day, then confirm      │
+│ what really happened.            │
+│ ① Sign in with Google            │ primary, ≥ 44 px
+│ We recommend Google 2-Step       │
+│ Verification. ② Learn how        │
+└──────────────────────────────────┘
+```
+
+- **Tablet and desktop:** the same content, centered, at most 440 px wide.
+- **Elements:** ① button "Sign in with Google"; ② link to Google's help page.
+- **States:**
+  - Invite only: the same screen with "This app is invite only." in place of the button, and "Use another account".
+  - Google unavailable: "Google sign-in isn't responding. Try again." with Try again.
+  - Signing in: the button shows "Signing in…" and is announced.
+
+### First setup (1a)
+
+- **Flows:** First setup. Three steps (four on iPhone and iPad when the Home Screen step is needed), one per screen.
+
+```
+┌──────────────────────────────────┐
+│ Step 1 of 3                      │ progress, as text
+│ Choose your calendars            │ h1
+│ Events from these count as busy. │
+│ ① ☑ Personal                     │
+│ ② ☑ Work                         │
+│ ③ ☐ Birthdays                    │
+│ Importing 1 of 2…                │ live status
+│ ④ Continue                       │ primary
+│ ⑤ Skip for now                   │
+└──────────────────────────────────┘
+```
+
+- **Step 1 variant:** if calendar access was declined at sign-in, the step shows "Connect calendar" with one sentence on why, then the list.
+- **Step 2, Time zone:** "Your home time zone" with a searchable field prefilled from the device (`input` with a list of suggestions), and Continue.
+- **Step 3, Your week:** the starter template as a list of ranges per day (Mon–Fri Work 09–17, Focus 09–11, Personal 18–21, Meals, Sleep), a small week strip as a visual summary, then "① Use this template" (primary) and "② Edit first".
+- **iPhone and iPad step:** "Add to Home Screen to get reminders" with three numbered steps as text and a picture, then Continue.
+- **Screen reader:** each step moves focus to its h1; the progress text is part of the heading ("Step 1 of 3, Choose your calendars"). Import progress is a polite live region, announced at start and end.
+- **States:** import failed: "Couldn't import your calendar. You can continue and reconnect later." with Continue.

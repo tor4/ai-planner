@@ -2,17 +2,17 @@
 
 Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
-## Capture a task (1a)
+## New task (1a)
 
 - **Goal:** get a task out of your head and into the app in seconds.
-- **Entry:** the capture button, always visible on every main screen, or its keyboard shortcut.
+- **Entry:** the "+ New task" button, always visible on every main screen, or its keyboard shortcut.
 - **Preconditions:** signed in.
 - **Success:** the task is saved and shown in the task list.
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
 flowchart LR
-  A[Open capture]:::step --> B[Type title]:::step --> C[Press Enter]:::step --> S[[Save as Other]]:::sys --> D([Added, Undo shown]):::ok
+  A[Open New task]:::step --> B[Type title]:::step --> C[Press Enter]:::step --> S[[Save as Other]]:::sys --> D([Added, Undo shown]):::ok
   D -->|Undo| U([Task removed]):::exit
   C -->|title empty| B
   A -->|Esc or close| E([Closed, nothing saved]):::exit
@@ -27,15 +27,15 @@ flowchart LR
 ```
 
 **Steps**
-1. Open capture (Must 7).
+1. Open New task (Must 7, fast capture).
 2. Type a title. "Add details" optionally opens the estimate, flags, deadline and type.
 3. Press Enter. The task is saved with type "Other" unless another was chosen (Must 6).
 4. An Undo message shows "Added · Undo" (see the README, Undo).
 
-One typed line counts as the capture, within the 3-tap budget (Must 7).
+One typed line counts as adding the task, within the 3-tap budget (Must 7).
 
 **States and errors**
-- **Empty task list:** "No tasks yet. Add one with capture."
+- **Empty task list:** "No tasks yet. Add one with New task."
 - **Empty title:** Enter does nothing, and the field shows "Add a title".
 - **Save failed:** "Couldn't save the task. Retry." The text stays in the field.
 
@@ -43,9 +43,9 @@ One typed line counts as the capture, within the 3-tap budget (Must 7).
 - Esc or close: nothing is saved. If a title was typed, it is kept as a draft in the field until the page is closed.
 
 **Accessibility**
-- Opening capture moves focus to the title field.
+- Opening New task moves focus to the title field.
 - After saving, focus stays in an empty title field so the next task can be typed. The Undo message is announced as "Task added".
-- Undo is reachable by Tab while the message is shown. Ctrl+Z (Cmd+Z) also undoes the capture straight from the empty title field, as long as nothing has been typed since the save. Once typing starts, Ctrl+Z undoes the typing instead (see the README, Undo). The message's timer pauses while it has focus.
+- Undo is reachable by Tab while the message is shown. Ctrl+Z (Cmd+Z) also removes the task just added, straight from the empty title field, as long as nothing has been typed since the save. Once typing starts, Ctrl+Z undoes the typing instead (see the README, Undo). The message's timer pauses while it has focus.
 
 ## Edit task details and urgency (1a)
 
@@ -125,7 +125,7 @@ flowchart LR
 2. Add or rename a type.
 3. Set a type's time window: work time, personal time or any. This decides where the suggester can place its tasks (Must 6).
 4. Delete a type. An inline row asks "Delete Admin? Its 12 tasks move to Other." If confirmed, its tasks and history move to "Other", and the metrics recompute (Must 6). There is no Undo, because PRD U3 limits Undo to blocks and tasks. The inline row is the safety net, and it is not a dialog.
-5. "Other" cannot be deleted, because quick capture needs it (Must 6).
+5. "Other" cannot be deleted, because New task saves to it by default (Must 6).
 
 **States and errors**
 - **Duplicate name:** "A type with this name already exists."
@@ -296,3 +296,142 @@ Entries older than 7 days stay in the read-only edit history for 30 days, for au
 
 **Accessibility**
 - Each entry is a row such as "Start, 10:00 changed to 14:00, Monday 09:12", with a labelled Restore button.
+
+## Screens
+
+The frame, navigation and the Undo message are in the [README](README.md#screens-frame-navigation-and-shared-parts).
+
+### Tasks (1a)
+
+- **Flows:** New task, Mark a task done or not done, Drop or delete a task, Plan with the suggester (entry).
+- **Phone:**
+
+```
+┌──────────────────────────────────┐
+│ Tasks          ① Plan my tasks   │ banner · h1 "Tasks"
+├──────────────────────────────────┤ main
+│ ② [ New task: type and press Enter ]│ always visible on this screen
+│ ③ Open ④ Done   ⑤ Needs a decision 1│ filter tabs
+│ ⑥ ☐ Write report  2 h · Urgent ⋯ │
+│ ⑦ ☐ Call bank     30 min       ⋯ │
+│ ⑧ ☐ Tax return    Due Fri      ⋯ │
+│ ⑨ Recently removed               │
+│ ┌ Added · Undo ────────────────┐ │ Undo message
+├──────────────────────────────────┤
+│ tab bar                          │
+└──────────────────────────────────┘
+```
+
+- **Tablet and desktop:** the list on the left, the selected task's details on the right (see Task details). In the planner, the same list is the Tasks panel from the rail, and a task can be dragged onto the grid or placed with "Place…" in its menu.
+
+| # | Element | HTML / role | Accessible name | Req |
+|---|---|---|---|---|
+| ② | New task field | input type text with label | "New task" | Must 7 |
+| ③–⑤ | Filters | tab list | "Open, 12", "Done", "Needs a decision, 1" | |
+| ⑥–⑧ | Task row | checkbox + link + menu button | checkbox "Write report, done"; link "Write report, 2 hours, urgent"; menu "More actions for Write report" | Must 6 |
+| ⑨ | Recently removed | link | "Recently removed" | Must 6 |
+
+- **Screen reader:** the list announces its count ("12 open tasks"). Each row reads title, estimate, flags, deadline and "repeats" when it does. After adding a task, focus stays in the New task field and "Task added" is announced.
+- **States:**
+  - Empty: "No tasks yet. Add one with New task."
+  - Loading: five skeleton rows.
+  - Error: "Couldn't load your tasks. Retry."
+- **New task from other screens:** the "+" or "+ New task" button opens this field in a small sheet (phone) or pop-over (desktop) with the same behavior.
+
+### Task details (1a)
+
+- **Flows:** Edit task details and urgency, Mark a task done or not done, Drop or delete a task, Restore an earlier version; Checklists and Repeat (1b) appear here too.
+- **Phone:** its own screen. **Tablet and desktop:** the right-hand side of Tasks.
+
+```
+┌──────────────────────────────────┐
+│ ② ‹ Back   Write report      ③ ⋯ │ h1 "Write report"
+├──────────────────────────────────┤
+│ ④ Title     [ Write report     ] │
+│ ⑤ Estimate  [ 2 h ]              │
+│   Usually takes you 1.6 h ⑥ Use  │ 1b
+│ ⑦ ☐ Urgent  ⑧ ☑ Important        │
+│ ⑨ Deadline  [ Fri 20 Nov ]       │
+│ ┌ Due in 3 days, needs about 2.  │ urgency suggestion
+│ │ ⑩ Mark as urgent ⑪ Dismiss    │
+│ ⑫ Type      [ Work ▾ ]           │ includes "New type…"
+│ Steps 2 of 3                  ⑬ ›│ 1b, see checklists.md
+│ Blocks: Mon 09–10 ✓, Thu 10–11 ⑭ ›│
+│ ⑮ Repeat                      ›  │ 1b
+│ ⑯ Mark done                      │
+└──────────────────────────────────┘
+```
+
+| # | Element | HTML / role | Accessible name | Req |
+|---|---|---|---|---|
+| ③ | More actions | menu button | "More actions": Drop, Delete, Earlier versions | Must 6, 12 |
+| ⑤ | Estimate | input with unit | "Estimate, hours and minutes" | Must 6 |
+| ⑥ | Use suggestion | button | "Use 1.6 hours" | Must 10 |
+| ⑦⑧ | Flags | checkboxes | "Urgent", "Important" | Must 4 |
+| ⑨ | Deadline | input type date | "Deadline" | Must 4, U4 |
+| ⑩⑪ | Urgency suggestion | two buttons in a group | "Mark as urgent", "Dismiss suggestion" | Must 4 |
+| ⑫ | Type | select | "Type" | Must 6 |
+| ⑯ | Mark done | button | "Mark Write report done" | Must 6 |
+
+- **Screen reader:** the urgency suggestion is a group labelled with its sentence, announced politely when it appears; it never takes focus. Each field saves on change and announces "Saved" only if the save took longer than a second.
+- **States:**
+  - Invalid value: an inline error under the field, with the entry kept (PRD A5).
+  - Save failed: "Couldn't save. Retry." next to the field.
+  - Deleted task while open (another device): "This task was deleted on another device." with a link back to Tasks.
+
+### Task types (1a)
+
+- **Flows:** Manage task types.
+- **Phone:** a settings screen from More. **Desktop:** a Settings sidebar section.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Task types              │ h1
+│ ① Work      Work time      ② ⋯   │
+│ ③ Personal  Personal time  ④ ⋯   │
+│ ⑤ Admin     Work time      ⑥ ⋯   │
+│ ┌ Delete Admin? 12 tasks move to │ inline confirm row
+│ │ Other.  ⑦ No  ⑧ Yes, delete   │
+│ Other       Any time   (fixed)   │ no menu
+│ ⑨ + Add type                     │
+└──────────────────────────────────┘
+```
+
+- **Elements:** each row's menu has Rename, Time window (work, personal, any) and Delete, each a labelled menu item (not icon-only). The inline confirm row's "No" is focused first.
+- **Screen reader:** rows read "Admin, uses work time". Deleting announces "Admin deleted, 12 tasks moved to Other".
+- **States:** duplicate name shows "A type with this name already exists." inline.
+
+### Recently removed (1a)
+
+- **Flows:** Recently removed.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Recently removed        │ h1
+│ Call bank · Dropped 2 days ago   │
+│ Restorable until 18 Nov  ① Restore│
+│ Block Mon 10:00 · Deleted today  │
+│ Restorable until 23 Nov  ② Restore│
+└──────────────────────────────────┘
+```
+
+- **Elements:** one Restore button per row, named "Restore Call bank".
+- **Screen reader:** after a restore, "Call bank restored" and focus moves to the next row.
+- **States:** empty: "Nothing removed in the last 7 days." Error: "Couldn't restore. Retry."
+
+### Earlier versions (1a)
+
+- **Flows:** Restore an earlier version.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Earlier versions        │ h1, names the task or block
+│ Start · 10:00 → 14:00 · Mon 09:12│
+│                        ① Restore │
+│ Title · "Report" → "Write report"│
+│                        ② Restore │
+└──────────────────────────────────┘
+```
+
+- **Elements:** each row is text plus a Restore button named "Restore start 10:00".
+- **States:** empty: "No earlier versions in the last 7 days."

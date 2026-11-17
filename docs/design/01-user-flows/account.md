@@ -135,3 +135,55 @@ flowchart LR
 **Accessibility**
 - The dialog has focus on its text field, with Cancel reachable by Esc.
 - The final screen is announced, and its heading takes focus.
+
+## Screens
+
+### Account (1a)
+
+- **Flows:** Sign out, Export your data (1b), Delete all data.
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Account                 │ h1
+│ Signed in with Google            │
+│ ① Sign out                       │
+│ ② Sign out everywhere            │
+│ ③ Export your data               │ 1b
+│ ④ Delete all data                │ destructive style, text says it
+└──────────────────────────────────┘
+```
+
+- **Elements:** four buttons, each at least 44 px tall. ④ uses the danger style and its text alone says what it does.
+- **Export, while preparing:** ③ shows "Preparing your file…" as a live status; on failure "Export failed. Retry."
+
+### Delete all data (1a)
+
+```
+┌──────────────────────────────┐
+│ Delete all data?             │ dialog · h2
+│ Removes your tasks, blocks,  │
+│ settings, history and        │
+│ imported events now. Backups │
+│ are purged within 30 days.   │
+│ This can't be undone.        │
+│ ① Type delete to confirm     │
+│   [            ]             │
+│ ② Delete all data            │ enabled after typing
+│ ③ Cancel                     │
+└──────────────────────────────┘
+```
+
+- **Screen reader:** focus starts in the text field; the paragraph is the dialog's description. Esc equals Cancel.
+- **Final screen:** "Your data is deleted." If revoking Google access failed: "We couldn't remove Google access automatically. Remove it in your Google account settings." with the link.
+
+### Accessibility (1a)
+
+```
+┌──────────────────────────────────┐
+│ ‹ Back   Accessibility           │ h1
+│ ① Keep Undo messages until I     │ switch, off by default
+│   close them                     │
+│ Motion, contrast and text size   │
+│ follow your system settings.     │
+└──────────────────────────────────┘
+```

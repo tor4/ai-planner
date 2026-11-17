@@ -1,11 +1,11 @@
 ---
 title: "AI Planner design 1: user flows"
 owner: Nataly
-version: 0.2
-date: 2026-11-16
+version: 0.3
+date: 2026-11-18
 status: approved
-approved_on: 2026-11-16
-related: [PRD v0.2](../../PRD.md), [Architecture v0.4](../../architecture.md)
+approved_on: 2026-11-18
+related: [PRD v0.3](../../PRD.md), [Architecture v0.5](../../architecture.md)
 ---
 
 # Design 1: User flows
@@ -21,7 +21,7 @@ Each file covers one feature area. Each flow's header gives its release: **1a**,
 | File | Flows |
 |---|---|
 | [first-run.md](first-run.md) | Sign in, first setup |
-| [tasks.md](tasks.md) | Capture, task details and urgency, task types, done and undone, drop and delete, Recently removed, earlier versions |
+| [tasks.md](tasks.md) | New task, task details and urgency, task types, done and undone, drop and delete, Recently removed, earlier versions |
 | [planning.md](planning.md) | Plan with the suggester, place blocks by hand, delete a block, overload check |
 | [reminders-and-confirmation.md](reminders-and-confirmation.md) | Turn on reminders, block reminders, confirm a block, edit a confirmation, postponement prompts |
 | [availability.md](availability.md) | Weekly template, day overrides, home zone, planning settings |
@@ -40,7 +40,7 @@ The core loop of the first release. Each step links to its flows.
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
 flowchart LR
-  J1[Capture tasks]:::step --> J2[Plan the day or week]:::step --> J3[[Remind at start and end]]:::sys --> J4[Confirm what happened]:::step --> J5[Review the week]:::step --> J6[Adjust template and estimates]:::step
+  J1[Add new tasks]:::step --> J2[Plan the day or week]:::step --> J3[[Remind at start and end]]:::sys --> J4[Confirm what happened]:::step --> J5[Review the week]:::step --> J6[Adjust template and estimates]:::step
   J6 -.-> J1
   classDef step fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
   classDef sys fill:#E6F1FB,stroke:#185FA5,color:#042C53
@@ -51,7 +51,7 @@ flowchart LR
   classDef error fill:#FAECE7,stroke:#993C1D,color:#4A1B0C,stroke-width:3px
 ```
 
-1. **Capture tasks:** [tasks.md](tasks.md), Capture a task.
+1. **Add new tasks:** [tasks.md](tasks.md), New task.
 2. **Plan the day or week:** [planning.md](planning.md), Plan with the suggester, and Place, move or resize a block.
 3. **Remind at start and end:** [reminders-and-confirmation.md](reminders-and-confirmation.md), Block reminders.
 4. **Confirm what happened:** [reminders-and-confirmation.md](reminders-and-confirmation.md), Confirm a block.
@@ -90,14 +90,14 @@ Each diagram is followed by its text version. Diagram colors are placeholders un
 These apply to every flow and are not repeated in each one.
 
 - **Loading:** skeletons in the shape of the content. When the first request after idle takes over 1 second, the screen adds "Waking up the server…" (up to 3 s is accepted, PRD P3).
-- **No connection (1a, decided):** whatever is on screen stays visible. A banner says "No connection. Changes can't be saved right now." Every action that changes data is disabled, not only save buttons: capture, dragging and the keyboard move mode, time fields, checkboxes, the four confirm options, Undo, restore and settings. A block cannot be picked up for dragging, and trying it announces "Can't change while offline". Typed text stays in its field. When the connection returns, the banner goes and the data refreshes. A reload while offline shows the browser's own offline page.
+- **No connection (1a, decided):** whatever is on screen stays visible. A banner says "No connection. Changes can't be saved right now." Every action that changes data is disabled, not only save buttons: New task, dragging and the keyboard move mode, time fields, checkboxes, the four confirm options, Undo, restore and settings. A block cannot be picked up for dragging, and trying it announces "Can't change while offline". Typed text stays in its field. When the connection returns, the banner goes and the data refreshes. A reload while offline shows the browser's own offline page.
 - **Offline (1b):** the saved read-only copy replaces the browser's offline page (Must 12).
 - **Signed out mid-task (1a, decided):** a dialog says "Signed out. Sign in to continue". Google sign-in opens in a pop-up, the screen and typed text stay underneath, and the user saves again afterwards.
   - **If the browser blocks the pop-up:** the dialog switches to "Sign in on a new page". Before leaving, the app keeps any unsaved text in the browser's session storage for that tab only. After sign-in the app returns to the same screen, puts the text back in its field and deletes the stored copy, so the user can save it. The stored copy is never sent anywhere, and it is cleared when the tab closes.
 - **Errors:** every error names what failed, keeps the user's input and offers one primary action. A secondary action is allowed when it is clearly less prominent.
 - **Undo (decided):** these actions show an Undo message:
   - deleting a block, deleting a task and dropping a task (PRD U3);
-  - capturing a task ("Added · Undo");
+  - adding a task with New task ("Added · Undo");
   - ending a series, whose future occurrences are tasks ("Gym ended · 4 occurrences removed · Undo");
   - marking a task done, which also removes its future blocks ("done · 1 future block removed · Undo"). Unticking within 7 days remains the later way back.
 
@@ -106,7 +106,7 @@ These apply to every flow and are not repeated in each one.
   - **Shortcut:** while the message is shown, Ctrl+Z (Cmd+Z on Mac) undoes the most recent action in it, and pressing it again undoes the one before. Which undo runs depends on what there is to undo (decided):
     - **Outside a text field:** Ctrl+Z undoes the latest app action.
     - **In a text field with typing to undo:** Ctrl+Z undoes the typing, as in any text field.
-    - **In the capture field, when it is empty and nothing has been typed since the last save:** Ctrl+Z undoes the last capture, because there is no typing to undo.
+    - **In the New task field, when it is empty and nothing has been typed since the last save:** Ctrl+Z removes the task just added, because there is no typing to undo.
 
     The app never overrides browser or screen-reader shortcuts.
   - **Setting:** "Keep Undo messages until I close them", in Settings, then Accessibility (see [account.md](account.md)), removes the timer. The message still closes after 10 minutes at most, so a deleted task's title is gone within 10 minutes (Musts 6 and 14). This meets WCAG 2.2.1 (timing adjustable).
@@ -142,6 +142,161 @@ One set of labels, used in the calendar, lists and screen-reader text. Every sta
 - **Open**, **Done**, **Dropped** and **Deleted**.
 - **Not done:** a recurring occurrence whose period ended without it being done (Must 18).
 
+## Screens: frame, navigation and shared parts
+
+Each feature file ends with a `## Screens` section: the structure of every screen its flows use. This text is the source of truth and stays with the code. Pictures of the main screens follow this text. They are exported from the design canvas ([AI Planner wireframes](https://claude.ai/artifact/J9B7HdCRaHniRwGmxs25fF), private to the owner) into `images/`. Colors are placeholders until the design system step.
+
+**Main screens**
+
+Phone: Plan (day), Review proposals, Tasks, Task details, To confirm and Metrics.
+
+![Main screens on phone](images/main-screens-phone.png)
+
+Desktop, Plan (week), with the To confirm panel and the rail:
+
+![Plan, week, on desktop](images/plan-week-desktop.png)
+
+Tablet, Plan (3 days), with the Tasks panel open over the grid:
+
+![Plan, 3 days, on tablet](images/plan-3-days-tablet.png)
+
+Desktop, Tasks with the selected task's details beside the list:
+
+![Tasks on desktop](images/tasks-desktop.png)
+
+Desktop, Metrics:
+
+![Metrics on desktop](images/metrics-desktop.png)
+
+**How each screen is written**
+- **Flows:** the flows that use it.
+- **Phone:** a text layout. Circled numbers (①②③) give the keyboard and screen-reader focus order. The right margin names landmarks and notes.
+- **Tablet and desktop:** a layout where it differs, or a note.
+- **Elements:** a table with each interactive element's HTML element or role, its accessible name and its requirement.
+- **Screen reader:** the heading, the reading order and the announcements.
+- **States:** empty, loading, error and other states, with their wording.
+
+### Breakpoints
+
+| | Phone (under 640 px) | Tablet (640–1024 px) | Desktop (above 1024 px) |
+|---|---|---|---|
+| Navigation | Bottom tabs with labels: Plan, Tasks, Confirm, Metrics, More | Top bar with labels: Plan, Tasks, Metrics, and Account | Same as tablet |
+| New task | "+" in the toolbar, named "New task" | "+ New task" in the top bar | Same as tablet |
+| Planner default | Day | 3 days | Week, Monday start |
+| Side panels (To confirm, Tasks, Proposals, Assistant) | Full screens | Rail with labels; the panel opens over the grid | Rail with labels; the panel sits beside the grid |
+| View options | Bottom sheet | Pop-over | Pop-over |
+| Settings | "More" tab, then a list | Account menu, then Settings, with a sidebar | Same as tablet |
+
+All layouts work from 320 px wide and at 200% zoom (PRD A3, U2). Tablet is the desktop layout with the panel over the grid, so it is described only where it differs.
+
+**Skip link.** Every screen starts with a "Skip to content" link, hidden until it has focus (PRD A1). It is the same everywhere, so the layouts leave it out and number the focus order from the first element after it.
+
+### Phone frame
+
+```
+┌──────────────────────────────────┐
+│ ① ‹  ② Mon 16 Nov  ③ ›  ④ ⚙ ⑤ +  │ banner: toolbar of the screen
+├──────────────────────────────────┤
+│                                  │ main · one h1 per screen
+│   screen content                 │
+│                                  │
+├──────────────────────────────────┤
+│ ⑥ Plan ⑦ Tasks ⑧ Confirm 2 ⑨ Metrics ⑩ More │ navigation
+└──────────────────────────────────┘
+```
+
+- The tab bar shows on the five top-level screens only. Sub-screens (task details, settings pages) show "‹ Back" in the toolbar instead.
+- Focus order is: toolbar, main content, tab bar. The tab bar comes last, because it repeats on every screen.
+- The current tab has `aria-current="page"` and a visible underline, not only a color.
+- The Confirm tab shows its count as text: "Confirm, 2 to confirm". It is information, never an alert badge (Must 13, no manipulation).
+
+### Desktop frame
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ ① Plan ② Tasks ③ Metrics            ④ + New task ⑤ Account ▾ │ banner + navigation
+├────────────────────────────────────────────────────────────┬─────────┬──┤
+│ ⑥ toolbar of the screen                                     │ ⑧ panel │⑦ │ main | complementary
+│ screen content                                              │         │ rail
+└────────────────────────────────────────────────────────────┴─────────┴──┘
+```
+
+- The rail lists To confirm (with its count), Tasks, Proposals (only while a suggester run is open) and Assistant (Should, only when it is enabled). Each item has an icon and a text label.
+- Choosing a rail item opens or switches the panel. Choosing the open item again closes it.
+- Focus order is: navigation, New task, Account, the screen's toolbar and content, the rail, then the panel. The rail comes before the panel because it chooses what the panel shows.
+- On tablet the panel opens over the content and closes with Esc. Focus moves into it, and back to the rail item when it closes.
+- The Account menu holds Settings, Help and tips, and Sign out.
+
+### View options (1a)
+
+- **Flows:** none of its own; it is reached from every planner screen.
+- **Phone:** a bottom sheet. **Tablet and desktop:** a pop-over under the "View options" button.
+
+```
+┌──────────────────────────────────┐
+│ View options                ① ✕  │ dialog · h2
+│ ② Days in view   Day ▾           │ Day, 3 days, Week
+│ ③ Time           24-hour ▾       │ 12-hour, 24-hour; default from locale
+│ ④ Date format    16 Nov 2026 ▾   │ default from locale
+│ ⑤ All-day busy   Full ▾          │ Full, Slim bar at the top
+└──────────────────────────────────┘
+```
+
+| # | Element | HTML / role | Accessible name | Req |
+|---|---|---|---|---|
+| ① | Close | button | "Close view options" | A1 |
+| ②–⑤ | Each option | native select with label | "Days in view", "Time format", "Date format", "All-day busy events" | A2, U6 |
+
+- **Screen reader:** opens as a dialog named "View options", with focus on the first select. Each change applies at once and announces nothing extra. Esc closes it and returns focus to the button.
+- **States:** a failed save keeps the change on this device and shows "Couldn't save your view options. Retry."
+- Choices are saved to the account, so they follow the user across devices. Start of week is not offered, because weeks start on Monday (PRD section 3).
+
+### Block kinds
+
+Every kind is told apart by text and shape, never by color alone (Must 16). The colors are placeholders until the design system step.
+
+| Kind | Look | Visible text | Accessible name ends with |
+|---|---|---|---|
+| Planned block | solid fill, bar on the start edge | title, time | "planned" |
+| Hard event | grey fill | title or "Busy", time | "busy" |
+| Recovery buffer | hatched, not focusable | "Buffer" | (read as text: "Recovery buffer, 10 minutes") |
+| Proposed block | dashed outline, no fill | title, "Proposed" | "proposed" |
+| Unconfirmed block | solid, with a dot icon | "Unconfirmed" | "unconfirmed" |
+| Missed block | solid, with ⊘ icon | "Missed" | "missed" |
+| Confirmed block | lighter fill, ✓ icon | outcome, for example "Took 1 h 20" | "confirmed, took 1 hour 20 minutes" |
+| Unconfirmed, window closed | greyed, ⊘ icon | "Window closed" | "unconfirmed, window closed" |
+| May be affected | any of the above, with ! icon | "May be affected" | adds "may be affected" |
+| Assistant suggestion (Should) | dashed outline with a spark icon | "Assistant suggestion" | "assistant suggestion" |
+
+Block text is at least 14 px. Short blocks cut the title with an ellipsis rather than shrink the text, and the full text stays in the accessible name.
+
+### More (1a)
+
+- **Flows:** reaches every settings flow. On tablet and desktop it is Settings from the Account menu, with the same items as a sidebar.
+
+```
+┌──────────────────────────────────┐
+│ More                             │ h1
+│ ① Weekly template              › │
+│ ② Planning                     › │ buffer, default duration
+│ ③ Task types                   › │
+│ ④ Calendar                     › │
+│ ⑤ Notifications                › │
+│ ⑥ Time zone                    › │
+│ ⑦ Accessibility                › │
+│ ⑧ Assistant data               › │ Should
+│ ⑨ Account                      › │
+│ ⑩ Recently removed             › │
+│ ⑪ Tips                         › │ Should
+├──────────────────────────────────┤
+│ tab bar                          │
+└──────────────────────────────────┘
+```
+
+- **Elements:** each row is a link with its visible name. Rows are at least 44 px tall (PRD A4).
+- **Screen reader:** a list of 11 links under the heading "More".
+- **States:** a row shows a short status where useful, such as "Calendar · Disconnected", as text.
+
 ## Decisions made in this step
 
 | Decision | Where |
@@ -171,8 +326,12 @@ One set of labels, used in the calendar, lists and screen-reader text. Every sta
 | The overlap dialog starts with focus on "Don't place" | planning.md |
 | Confirming an old block of a done task never re-plans it: "didn't do it" offers no new slot, and "partly done" asks no time left | reminders-and-confirmation.md |
 | Confirmed blocks can't be deleted. A wrong confirmation is edited instead (narrows Must 6) | planning.md |
+| The add button is named "New task". "Fast capture" stays only as the PRD requirement name | tasks.md, Screens |
+| Phone uses bottom tabs (Plan, Tasks, Confirm, Metrics, More). Tablet and desktop use a top bar plus a labelled rail for side panels | Screens |
+| The planner defaults to Day on phone, 3 days on tablet and Week on desktop | Screens |
+| View options: days in view, time format, date format, all-day busy events, saved to the account. Start of week is not offered | Screens |
 | Marking a task done removes its future blocks (restored if unticked within 7 days). Past unconfirmed blocks stay in To confirm | tasks.md |
-| Undo message: shown for block delete, task delete and drop, capture, mark done and series end. It pauses on focus or hover, has Ctrl+Z (Cmd+Z) as its shortcut, which yields to typing undo in text fields but works in the empty capture field right after a save, and groups removals into one message. "Keep Undo messages until I close them", in Settings, then Accessibility, removes the timer, with a 10-minute cap | Cross-cutting states, account.md |
+| Undo message: shown for block delete, task delete and drop, New task, mark done and series end. It pauses on focus or hover, has Ctrl+Z (Cmd+Z) as its shortcut, which yields to typing undo in text fields but works in the empty New task field right after a save, and groups removals into one message. "Keep Undo messages until I close them", in Settings, then Accessibility, removes the timer, with a 10-minute cap | Cross-cutting states, account.md |
 
 **When the PRD and architecture are updated.** This design step ends when this document is approved. The PRD is then updated to v0.3 with every decision above, and `docs/architecture.md` gets the matching changes:
 - **6.4:** the undo deadline for a deleted task is extended while the Undo message stays open, up to 10 minutes. Ending a series can be undone.

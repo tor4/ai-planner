@@ -46,3 +46,25 @@ flowchart LR
 - Steps are a list of native checkboxes, and each label is the step text.
 - After a move, "Moved to position 3 of 5" is announced.
 - The done prompt is announced politely and does not take focus.
+
+## Screens
+
+### Steps (1b)
+
+- **Where:** the Steps section of task details, and "Steps" in a block's menu, which opens the same list as a sheet.
+
+```
+┌──────────────────────────────────┐
+│ Steps · 2 of 3                   │ h2
+│ ① ☑ Collect receipts        ② ⋯  │
+│ ③ ☑ Fill in the form        ④ ⋯  │
+│ ⑤ ☐ Submit                  ⑥ ⋯  │
+│ ⑦ [ Add a step                 ] │ Enter adds the next
+│ ┌ All steps done. Mark the task  │ appears when all ticked
+│ │ done? ⑧ Mark done ⑨ Not yet    │
+└──────────────────────────────────┘
+```
+
+- **Elements:** each step is a native checkbox labelled with its text. Its menu has Edit, Move up, Move down and Delete.
+- **Screen reader:** "2 of 3 steps done" updates politely. Moving announces "Moved to position 3 of 5".
+- **States:** at 50 steps the field is replaced by "50 steps is the maximum."

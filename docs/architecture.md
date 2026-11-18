@@ -1,10 +1,10 @@
 ---
 title: "AI Planner architecture"
 owner: Nataly
-version: 0.5
-date: 2026-11-16
+version: 0.6
+date: 2026-11-18
 status: draft
-related: [PRD v0.3, approved 2026-11-16](PRD.md), [User flows, approved 2026-11-16](design/01-user-flows/README.md), [Evidence base](research/2026-10-30-evidence-base.md)
+related: [PRD v0.4, approved 2026-11-18](PRD.md), [User flows 0.4, approved 2026-11-18](design/01-user-flows/README.md), [Evidence base](research/2026-10-30-evidence-base.md)
 ---
 
 # Architecture: AI Planner
@@ -88,7 +88,7 @@ Email: alerts on assistant events and the Should email fallback need an email se
 
 ## 3. Key design decisions
 
-1. **One action layer.** Every change goes through a command (`createTask`, `createBlock`, `moveBlock`, `confirmBlock`, `dropTask`, and so on), and every read through a query. A field edit is a command whose input is a patch of fields (for example `updateTask`), and a block's start and end always travel together in `moveBlock` or `resizeBlock` (7.6). The web UI calls them through the API. The assistant's tools will call the same commands later. This gives planner and chat parity (PRD 4), and the planner keeps working when the LLM is down.
+1. **One action layer.** Every change goes through a command (`createTask`, `createBlock`, `moveBlock`, `confirmBlock`, `deleteTask`, and so on), and every read through a query. A field edit is a command whose input is a patch of fields (for example `updateTask`), and a block's start and end always travel together in `moveBlock` or `resizeBlock` (7.6). The web UI calls them through the API. The assistant's tools will call the same commands later. This gives planner and chat parity (PRD 4), and the planner keeps working when the LLM is down.
 2. **Rules live in `packages/core` as pure functions.** These are the suggester, overlap and hard-event checks, recovery buffers, the urgency suggestion, time conversion and the metric formulas. They take plain data and return plain data, with no database or network access. This makes them easy to test exhaustively and reusable on mobile.
 3. **The server is the single source of truth.** Clients hold no authoritative state. Cross-device sync means "write to the server, refetch on focus and on a timer". No CRDTs or sync engine.
 4. **Metrics are derived, never edited.** They are computed on read from the event log and frozen fields. Current records supply only identity and status (for example, which tasks exist and whether they are open), and the rebuild test checks that nothing else is read. Metrics read local times, week keys and lengths in minutes. The one comparison that needs instants (`planned_length_min`, 6.3) is stored before a time zone migration can change it (6.2). A fixed fixture dataset with hand-computed values guards the formulas (Must 15).
@@ -143,7 +143,7 @@ Each module is a folder in `apps/api` with a small public interface. Modules do 
 | Module | Responsibility | PRD |
 |---|---|---|
 | Auth | Google sign-in, sessions, the allowed-user check | Must 12 |
-| Tasks | Tasks, task types, priority flags, urgency suggestion, drop and delete, checklists, recurring series and occurrences | Musts 4, 6, 7, 17, 18 |
+| Tasks | Tasks, task types, priority flags, urgency suggestion, not now and delete, checklists, recurring series and occurrences | Musts 4, 6, 7, 17, 18 |
 | Blocks | Create, move, resize, delete, overlap warnings, confirmation | Musts 1, 2 |
 | Availability | Weekly template, per-day overrides, home zone | Must 5 |
 | Calendar | Google connection, calendar selection, incremental import | Must 3 |
@@ -166,10 +166,10 @@ Every table that holds user data has `user_id`. The exceptions are app-level tab
 | **users** | id, google_sub (the stable Google subject ID and the identity key; sign-in requires `email_verified`), email, home_zone (IANA name), settings (JSON: default task duration 30, buffer minutes 10, buffer threshold 60, LLM field toggles), created_at |
 | **sessions** | id, user_id, created_at, last_seen_at (30-day idle limit), expires_at (90 days absolute) |
 | **task_types** | id, name, is_other (the undeletable "Other"), time_window (work, personal, any), created_at |
-| **tasks** | id, title (null once deleted), urgent, important, deadline (date), estimate_min, type_id, status (open, done, dropped, deleted), done_at, done_flag_set_at, dropped_at, deleted_at, undo_until, urgency_suggestion_dismissed (cleared when the deadline changes), remaining_estimate_min (the unplanned remainder from "partly done"), **first_block_week** (frozen), series_id and occurrence_date (for recurring occurrences), created_at |
+| **tasks** | id, title (null once deleted), urgent, important, deadline (date), estimate_min, type_id, status (open, done, deleted), done_at, done_flag_set_at, deleted_at, undo_until, urgency_suggestion_dismissed (cleared when the deadline changes), remaining_estimate_min (the unplanned remainder from "partly done"), **first_block_week** (frozen), series_id and occurrence_date (for recurring occurrences), created_at |
 | **checklist_items** | task_id, position, text (removed on task delete), done, updated_at. At most 50 per task (Must 17). |
 | **recurring_series** | template fields (title, type, flags, estimate, checklist), rule (a subset of iCalendar RRULE in the home zone), mode (fixed or flexible), fixed start and end, or times_per_week, allowed days and time-of-day window, ends_on or count, generated_until |
-| **blocks** | id, task_id, start_local, end_local, zone, start_at, end_at (derived instants), **original_start_at**, **original_week** and **planned_length_min** (frozen), state (planned, confirmed, dropped, deleted), outcome (as_planned, took_x, partly_done, didnt_do), actual_min, actual_start_at, done_min, note, confirmed_at, deleted_at, may_be_affected, field_updated_at (JSON, per field) |
+| **blocks** | id, task_id, start_local, end_local, zone, start_at, end_at (derived instants), **original_start_at**, **original_week** and **planned_length_min** (frozen), state (planned, confirmed, task_deleted, deleted), outcome (as_planned, took_x, partly_done, didnt_do), actual_min, actual_start_at, done_min, note, confirmed_at, deleted_at, may_be_affected, field_updated_at (JSON, per field) |
 | **calendar_connections** | refresh_token (encrypted), status (ok, revoked, error), last_synced_at, sync_lease_until |
 | **calendars** | google_calendar_id, name, selected, last_synced_at, sync_token (only if the spike shows sync tokens work with the window) |
 | **calendar_events** | google_event_id, calendar_id, start_at and end_at (timed events), start_date and end_date (all-day events, end exclusive), all_day, transparency (busy or free), self_response, status, title (encrypted), synced_at. Unique on (calendar_id, google_event_id), so a repeated import updates instead of duplicating. |
@@ -212,30 +212,31 @@ Every table that holds user data has `user_id`. The exceptions are app-level tab
 - `tasks.first_block_week` is set when the task's first block is created and never changes. It defines the completion-rate cohort.
 - `blocks.original_start_at` and `original_week` are set on creation and never change. They define "originally scheduled".
 - `blocks.planned_length_min` is the block's length at its start time, in minutes. It is derived from the latest created, moved or resized event at or before the block's start, so later resizes do not change it, and a reschedule derives it again for the new start. A block created after its start (retroactive logging) uses the length in its created event. It is computed on read, and the first command or tick job that touches the block after its start stores it. The value is the same whenever it is stored, so no job is needed at the moment the start passes. A time zone migration stores it first for every started block (6.2). Estimate error compares against it (PRD 3).
-- `metric_events` records task created, block created, moved or resized, confirmation, task done, dropped or deleted, and done-flag changes. Each event carries its own data (old and new times, outcome, actual times, old and new done flag), so the events plus the frozen fields rebuild every metric without the edit history (Must 15). A test asserts this on the fixture dataset.
+- `metric_events` records task created, block created, moved or resized, confirmation and confirmation edits, task done, not now or deleted, and done-flag changes. Each event carries its own data (old and new times, outcome, actual times, old and new done flag), so the events plus the frozen fields rebuild every metric without the edit history (Must 15). A test asserts this on the fixture dataset.
 - Postponements are not stored as a flag. The metrics module derives them from the event sequence using the glossary definition:
   - one postponement per miss: "didn't do it" followed by a reschedule counts once;
   - a rescheduled block is the same block, so it keeps its original week;
   - confirming "as planned" or "it took X" at the new time cancels the postponement;
-  - a past unconfirmed block marked "dropped" counts once;
+  - a past unconfirmed block marked "task deleted" counts once;
   - a home-zone change is never a move.
 - The metrics module also computes:
   - the measurement clock start: the first Monday after 1a has been used on at least 5 of 7 consecutive days;
   - the provisional and final state of each week (final 14 days after the week ends);
   - the load guardrail (PRD 3).
   
-  The counting rules in PRD 3 apply to early moves (each move counts, toward the original week), the confirmation rate (original week, "dropped" excluded) and estimate error (week of the start at confirmation).
+  The counting rules in PRD 3 apply to early moves (each move counts, toward the original week), the confirmation rate (original week, "task deleted" excluded) and estimate error (week of the start at confirmation).
 
 ### 6.4 Deletion semantics
 
-- **Drop or delete a task** (Must 6):
+- **Delete a task** (Must 6, v0.4: the only removal; there is no drop):
   - its future planned blocks are soft-deleted (`state = deleted`) and its confirmed blocks are kept;
-  - its past unconfirmed blocks get `state = dropped`. They stop asking for confirmation, leave the confirmation-rate denominator, and count as one postponement each.
-- **Undo a drop** within 7 days: the task returns, with the removed blocks whose start has not passed yet. The time of the others becomes unscheduled again. A restored block that now overlaps a hard event is flagged `may_be_affected` and is not blocked, because Must 1 treats an overlap as a warning.
-- **Delete a task:** it can be undone only while the undo message is shown (PRD 6, U3). The server sets `undo_until` to the deletion time plus the undo period (15 seconds, at least 10 per PRD 6, U3) and rejects `undoDelete` after it. While the Undo message stays open (paused on focus or hover, or kept by the "keep Undo messages" setting), the client calls `extendUndo` every 10 seconds. Each call moves `undo_until` to 15 seconds from now, never beyond the deletion time plus 10 minutes (PRD 6, U3). A client that closes its message, or disappears, simply stops extending, so the server never has to know when the message closed. From `undo_until`, the API returns no title, checklist text or notes for the task and the export omits them, and the tick job then sets them to null in the database at the next successful tick (normally within 10 minutes). Until then the API already hides the text. The matching old and new values in `edit_history` are set to null at the same time, so the deleted text is not kept or exported. Backups made earlier can still hold the text until they expire within 30 days (Must 14). The task keeps its ID, type, flags, frozen week and outcome, so metrics and duration suggestions stay correct (Musts 6 and 14).
+  - its past unconfirmed blocks get `state = task_deleted`. They stop asking for confirmation, leave the confirmation-rate denominator, and count as one postponement each.
+- **Not now** (Must 6, v0.4): the task's future planned blocks are soft-deleted with a `removed_by_not_now` marker, which is not a postponement. The task stays open, so its time is unscheduled again. Past unconfirmed blocks keep asking for confirmation. `undoNotNow` restores the marked blocks while the Undo message is shown.
+- **No "Recently removed"** (v0.4): deleted tasks and blocks come back only through Undo while the message is shown. A block restored by Undo that now overlaps a hard event is flagged `may_be_affected` and is not blocked, because Must 1 treats an overlap as a warning.
+- **Delete a task:** it can be undone only while the undo message is shown (PRD 6, U3). The server sets `undo_until` to the deletion time plus the undo period (15 seconds, at least 10 per PRD 6, U3) and rejects `undoDelete` after it. While the Undo message stays open (paused on focus or hover, or kept by the "keep Undo messages" setting), the client calls `extendUndo` every 10 seconds. Each call moves `undo_until` to 15 seconds from now, never beyond the deletion time plus 10 minutes (PRD 6, U3). A client that closes its message, or disappears, simply stops extending, so the server never has to know when the message closed. A client that loses its connection cannot extend either, so a delete whose deadline passes while the client is offline is final; the flows accept this (user flows README, Undo, offline). From `undo_until`, the API returns no title, checklist text or notes for the task and the export omits them, and the tick job then sets them to null in the database at the next successful tick (normally within 10 minutes). Until then the API already hides the text. The matching old and new values in `edit_history` are set to null at the same time, so the deleted text is not kept or exported. Backups made earlier can still hold the text until they expire within 30 days (Must 14). The task keeps its ID, type, flags, frozen week and outcome, so metrics and duration suggestions stay correct (Musts 6 and 14).
 - **Mark a task done** (Must 6, v0.3): its future planned blocks are soft-deleted with a `removed_by_done` marker, which is not a postponement. Past unconfirmed blocks stay unconfirmed and keep asking for confirmation. Unticking within 7 days restores the marked blocks whose start has not passed. Their time otherwise becomes unscheduled again.
 - **End a series** (Must 18, v0.3): its future occurrences are soft-deleted as one group with the same `undo_until` mechanism as a task delete. `undoEndSeries` restores the series end date and the group. After the undo period, the occurrences follow the normal task-delete clean-up.
-- **Delete a block:** only unconfirmed blocks can be deleted (Must 6, v0.3); the API rejects deleting a confirmed one. It is soft-deleted (`state = deleted`, `deleted_at`), so the event log still refers to a real row. It can be restored for 7 days. When that window closes, its note is set to null, along with the matching `edit_history` values.
+- **Delete a block:** only unconfirmed blocks can be deleted (Must 6, v0.3); the API rejects deleting a confirmed one. It is undoable only while the Undo message is shown (v0.4), with the same `undo_until` rule as a task. It is soft-deleted (`state = deleted`, `deleted_at`), so the event log still refers to a real row. It can be restored for 7 days. When that window closes, its note is set to null, along with the matching `edit_history` values.
 - **Delete a task type:** its tasks are reassigned to "Other". Metrics recompute automatically, because they are derived.
 - **Undo and edit windows are 7 days**, except undo of a task delete, which lasts only for the undo period (at least 10 seconds, PRD 6, U3). `edit_history` is read-only after that, for audit and support (Must 12).
 
@@ -301,6 +302,7 @@ Every table that holds user data has `user_id`. The exceptions are app-level tab
    - **"It took X" with a start time** moves the block, is recorded as-is, and flags later blocks "may be affected". If the block would cross midnight, it ends at midnight and the full actual time is still stored.
    - **"Partly done"** stores the done time and sets the task's remaining estimate. A remainder under 15 minutes is planned as 15 minutes.
    - **"Didn't do it"** offers a new slot for the same block. Accepting it is a move of that block, and the metrics count one postponement.
+   - **Editing a confirmation** (Must 2, v0.4): `editConfirmation` applies the new outcome as if chosen first. It sets the done flag when the edited block is the task's last and nothing is unscheduled; clears it when this block's earlier outcome auto-set it and the new outcome is "partly done" or "didn't do it"; sets or clears the remaining estimate this block recorded; and moves the block for a changed actual start (not a postponement). Each effect is its own metric event.
    - **Task already done** (Must 2, v0.3): "didn't do it" records the postponement but returns no slot offer, and "partly done" stores the done time without setting a remaining estimate.
    - **Auto-done:** when the last block of a task is confirmed "as planned" or "it took X", the task is marked done only if its unscheduled time (7.4: the estimate, or the remaining estimate, minus the time in its planned and confirmed blocks) is zero or less, it has no remainder, and the user does not untick it. If time remains unscheduled (for example a 3-hour task with one 1-hour block), the task stays open and the UI offers to plan the rest or mark it done.
 4. **Summary:** the confirmation view shows the planned-vs-real summary, with the block's planned length against its actual time, and the day's planned hours against its confirmed hours.
@@ -308,7 +310,7 @@ Every table that holds user data has `user_id`. The exceptions are app-level tab
 
 **7.6 Concurrent edits from two devices**
 - The client sends field-level patches as the input of update commands. Each command runs in one transaction that first locks the row (`SELECT ... FOR UPDATE`). The order is the order in which transactions get the lock, stamped with the database clock at commit (`received_at`), and not the arrival order of requests, because serverless requests can overtake each other. The later commit wins, per field (`field_updated_at`). `received_at` is taken with `clock_timestamp()` after the lock is acquired, because `now()` is the start of the transaction. This reads Must 12's "server receive time" as the time the server applied the write, which is an interpretation to confirm in the PRD (section 17).
-- `confirmBlock` carries the block's `updated_at` that the client saw. If the block was moved or resized on another device since then, the server returns `CONFLICT` with the current record, and the client asks the user to confirm again against the current times. Other commands keep last write wins (Must 12). A command that touches several rows locks them in a fixed order: the user's settings row, then tasks by ID, then blocks by start time, then calendar rows. This applies to `dropTask`, to "it took X" flagging later blocks, to sync flagging overlaps, and to "this and future" edits.
+- `confirmBlock` carries the block's `updated_at` that the client saw. If the block was moved or resized on another device since then, the server returns `CONFLICT` with the current record, and the client asks the user to confirm again against the current times. Other commands keep last write wins (Must 12). A command that touches several rows locks them in a fixed order: the user's settings row, then tasks by ID, then blocks by start time, then calendar rows. This applies to `deleteTask` and `notNow`, to "it took X" flagging later blocks, to sync flagging overlaps, and to "this and future" edits.
 - Start and end are always written together, as one unit.
 - The old values go to `edit_history`, kept 30 days and read-only. An overwritten edit can be restored for 7 days.
 - Other devices see the change on their next refetch (on focus and every 60 seconds while visible).
@@ -392,16 +394,16 @@ REST-style JSON routes in Hono, grouped by module. Requests and responses are va
 
 | Area | Routes |
 |---|---|
-| tasks | create, update, list, markDone (removes future blocks), setDoneFlag (untick restores them within 7 days), drop, undoDrop, delete, undoDelete (while the message is shown), extendUndo (up to 10 minutes), dismissUrgency |
+| tasks | create (no undo), update, list, markDone (removes future blocks), setDoneFlag (untick restores them within 7 days), notNow, undoNotNow, delete, undoDelete (while the message is shown), extendUndo (up to 10 minutes), dismissUrgency, listEdits, restoreEdit (7 days) |
 | checklist | add, edit, reorder, tick, delete |
-| series | create, update (this or future), end, delete, undoEnd (while the message is shown) |
+| series | create, update (this or future), end, undoEnd (while the message is shown) |
 | taskTypes | list, create, rename, setTimeWindow, delete |
-| blocks | listRange, create, move, resize, delete (unconfirmed only), restore (7 days), confirm, editConfirmation, restoreEdit (7 days) |
+| blocks | listRange, create, move, resize, delete (unconfirmed only), undoDelete (while the message is shown), confirm, editConfirmation (applies the outcome rules in 7.5), listEdits, restoreEdit (7 days), dismissAffected |
 | planner | proposeSlots, durationSuggestion |
 | availability | getTemplate, setTemplate, setOverride, setHomeZone |
-| calendar | connect, listCalendars, selectCalendars, sync, listEvents |
+| calendar | connect, listCalendars, selectCalendars, sync, listEvents, disconnect (removes events, revokes access) |
 | metrics | weekly (range), recordSession, webVitals |
-| account | settings, export, deleteAll, signOutEverywhere |
+| account | settings (includes view options and accessibility settings), export, deleteAll, signOut, signOutEverywhere |
 | admin | flags (owner only) |
 | jobs | tick (scheduler only) |
 
@@ -509,7 +511,7 @@ Target: WCAG 2.2 level AA (Must 16), from Release 1a.
 - **Components.** Built on React Aria, an accessible component library, for dialogs, menus, date and time fields and focus management, instead of hand-made widgets.
 - **Calendar grid.**
   - Each block is a focusable element with a full accessible name, for example "Write report, Tuesday 09:00 to 10:30, planned".
-  - Arrow keys move between time slots and days. Enter opens the block or creates one in the focused slot.
+  - In the grid, arrow keys move focus between time slots and days, and Enter opens the focused block or creates one in the focused empty slot. In a block's "Move with keys" mode, Up and Down move the block 15 minutes, Left and Right move it to the previous or next day, and Shift + Up or Down resizes it (user flows, planning.md).
   - **Non-drag alternative (WCAG 2.5.7):** every create, move and resize can be done in a block dialog with start and end fields, and with keyboard shortcuts. Dragging is a convenience, never the only way.
 - **States without color alone.** Planned, unconfirmed, missed, hard event, recovery buffer and "may be affected" each have a text label or icon, and buffers use a hatched pattern. Text contrast is at least 4.5:1 and UI contrast at least 3:1, in light and dark themes.
 - **Announcements.** Overlap warnings, the confirmation banner, sync status and "assistant unavailable" are announced through live regions. Dialogs trap and restore focus. Focus is always visible.
@@ -598,7 +600,7 @@ Development is test-driven for `core`.
 | Level | What is tested |
 |---|---|
 | Unit (`core`) | Suggester inputs (unscheduled time, remainders, defaults), ordering and tie-breakers, task-type time windows, focus-time preference, 15-minute slots, splits and "no slot fits". Overlap and hard-event rules. Recovery buffers, including merged back-to-back events. Urgency suggestion, with the hours-to-days walk and the dismissal reset. Must 3 hard-event rules (free, unanswered, all-day busy). Duration suggestions per task. Glossary rules (15 minutes, no midnight crossing, end of day). DST: wall-clock blocks across both transitions, and device zone different from home zone. Recurrence rules: every pattern, ends, DST weeks, 'this and future' edits, overlap flagging, flexible spreading (one per day, allowed days, time of day), no pile-up. |
-| Metrics | A fixture dataset with hand-computed values for every metric in PRD 3, including the load guardrail and planning time. It covers:<br>• postponement cases: "didn't do it" plus reschedule, "as planned" at a new time, dropped past blocks, home-zone change;<br>• early moves counted twice;<br>• frozen cohorts and the frozen planned length;<br>• late confirmations, the 14-day provisional window and the clock start (Must 15).<br>A rebuild test recomputes everything from events and frozen fields alone. |
+| Metrics | A fixture dataset with hand-computed values for every metric in PRD 3, including the load guardrail and planning time. It covers:<br>• postponement cases: "didn't do it" plus reschedule, "as planned" at a new time, "task deleted" past blocks, home-zone change;<br>• early moves counted twice;<br>• frozen cohorts and the frozen planned length;<br>• late confirmations, the 14-day provisional window and the clock start (Must 15).<br>A rebuild test recomputes everything from events and frozen fields alone. |
 | Integration | Commands against a real Postgres (local Docker or a Neon branch). Calendar sync against recorded Google responses, including a revoked or expired Google grant and, if sync tokens are adopted, token invalidation. Delete all leaves zero rows for the user, including when the Google revoke fails. Sync freshness: a fake-clock test of the tick with cron jitter with jitter of up to 2 minutes and no skipped tick asserts that no connection goes more than 15 minutes unsynced (Must 3). A second test with one skipped tick asserts that staleness stays under 25 minutes and that `/status` reports the problem at 30. Concurrency: two simultaneous syncs for one connection produce no duplicate events and a consistent calendar state. A replayed request ID returns the original result and changes nothing. |
 | API contract | Zod validation on every route. Overlap warning and the confirm retry. Request-ID deduplication. |
 | Component | React Testing Library with Vitest, for components with real logic: block dialog (start and end fields, 15-minute minimum, no midnight crossing), confirmation view with its four outcomes, overlap warning and the `confirmOverlap` retry, calendar grid keyboard handling, error messages from `messageKey`, and screens with a flag off. Time and the Notification API are mocked. Queries use role and label, not internal structure. A component has real logic if it validates input, branches on state or time, or handles keyboard input beyond the default behavior. Not required for presentational components, and not part of the 90% coverage gate. |
@@ -691,7 +693,7 @@ Each item is owned by Nataly, with no dates yet (PRD 10). A value marked "propos
 | Keeping a token and a hash after delete all (PRD, privacy check) | Open. D24 keeps an encrypted token for up to 7 days, and the deletion ledger (section 11) keeps a keyed hash for 35 days. Confirm against Must 14 before step 4(d). The hash is pseudonymous personal data. |
 | Free Neon plan sustainability | Expected not to fit a 10-minute tick (section 12). Decided by the console reading in section 16, item 4. |
 | Pausing the scheduler at night | Open. Saves Neon compute but weakens Must 3 for a closed app (section 12). |
-| Late drops and the confirmation rate (PRD 3) | Open. Which week a postponement from a late drop or delete counts toward after the 14-day final window, and whether dropping or deleting past blocks can raise the confirmation rate. |
+| Late deletes and the confirmation rate (PRD 3) | Open. Which week a postponement from a late delete counts toward after the 14-day final window, and whether deleting past blocks can raise the confirmation rate. |
 | Review and sign-off | Open. No reviewer is named, and there are no criteria for moving from draft to accepted. PRD 6 Q3 asks for review, and the "AI review the owner approves" in section 18 needs the owner's definition of an independent review. |
 | Security expert review | Open. Sign-in and session design (`google_sub`, `email_verified`, session limits), key rotation, the backup key and the deletion ledger need review by someone who is not the author. |
 | Legal and privacy review | Open. AI Act and GDPR points in 9.3, the EU backup runner (section 11), and the deletion ledger hash. |
@@ -1070,6 +1072,7 @@ Each PRD requirement mapped to the place it is designed and the tests that check
 ## Changelog
 
 Finding IDs in the entries below (C1, M1 and so on) refer to the strict requirements review reports run on this document. The numbers restart with each review, and the reports are not kept in the repo.
+- **v0.6 (2026-11-18, draft):** matched to PRD v0.4 and user flows 0.4. Drop and the 7-day restores are removed; "Not now" and `undoNotNow` are added; the block state `dropped` is renamed `task_deleted`; `editConfirmation` rules (7.5); new routes for disconnect, sign out, earlier versions and dismissing "may be affected"; no series delete route; the keyboard rule in section 10 matches the flows.
 - **v0.5 (2026-11-16, draft):** matched to PRD v0.3 and the approved user flows (`docs/design/01-user-flows/`).
   - **6.4:** `extendUndo` keeps a task delete undoable while its Undo message is open, up to 10 minutes.
   - **6.4:** marking a task done removes its future blocks, and unticking restores them.

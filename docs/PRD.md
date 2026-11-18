@@ -2,10 +2,10 @@
 title: "AI Planner PRD"
 working_title: "AI Planner"
 owner: Nataly
-version: 0.3
-date: 2026-11-16
+version: 0.4
+date: 2026-11-18
 status: approved
-approved_on: 2026-11-16
+approved_on: 2026-11-18
 ---
 
 # Product Requirements Document: AI Planner
@@ -30,12 +30,12 @@ Weeks start on Monday, in the home time zone. The measurement clock starts on th
 - **Base goal:** daily use without forcing yourself. Planning and confirming a day takes about 5 minutes or less.
 
 **Reported metrics.** The metrics view (Must 15) shows these numbers weekly. They are inputs to the decision review below, not pass/fail gates, because one person's data is too small for a statistical test.
-- **Completion rate:** tasks whose first block was scheduled in the week that were marked done by the end of that same week, divided by all tasks whose first block was scheduled in the week. The cohort week is the week containing the start of the task's first block at the moment it is created, and it is frozen. A task whose blocks span several weeks therefore counts as not done unless it is finished by the end of its cohort week; this is intended. It does not move when the block moves. A task that is postponed, dropped or deleted stays in the denominator as not done. The done time is the end time of the last confirmed block when the task was marked done by confirmation (Must 2), and otherwise the time the user marked it. The done flag can be changed for 7 days after it is set.
+- **Completion rate:** tasks whose first block was scheduled in the week that were marked done by the end of that same week, divided by all tasks whose first block was scheduled in the week. The cohort week is the week containing the start of the task's first block at the moment it is created, and it is frozen. A task whose blocks span several weeks therefore counts as not done unless it is finished by the end of its cohort week; this is intended. It does not move when the block moves. A task that is postponed or deleted stays in the denominator as not done. The done time is the end time of the last confirmed block when the task was marked done by confirmation (Must 2), and otherwise the time the user marked it. The done flag can be changed for 7 days after it is set.
 - **Postponement rate:** postponed blocks divided by blocks originally scheduled in the week whose start time has passed. Each postponement event counts once, so a block postponed twice counts twice. The count of missed blocks is shown next to it, because a block skipped in silence is not a postponement until the user acts. "Originally scheduled" means the week of the block's start when it was created, frozen. A postponement counts toward that original week.
 - **Early-move rate:** moves of a block to a later week before it starts, divided by blocks originally scheduled in the week. Each move counts once, so a block moved twice counts twice and the rate can exceed 100%. A move counts toward the block's original week.
 - **Scheduled share:** tasks with at least one block divided by tasks created, counted in the week the task was created. It is evaluated when that week's numbers become final, so blocks added up to then count.
 - **Estimate error:** |actual time − planned time| / planned time, where planned time is the block's frozen planned length: its length at the moment its start time passes. A rescheduled block freezes it again at its new start. It covers "as planned" and "it took X" blocks, and excludes "partly done" blocks. A block counts in the week of its start time at confirmation. This differs on purpose from the other metrics, which use the original week, because estimate error is about when the work actually happened. It is shown with the signed overrun, the planned-hours trend and the share of "as planned" confirmations, so that padding and rubber-stamping are visible. A reference level of 20% median error is used for judgment.
-- **Confirmation rate:** confirmed blocks divided by blocks whose end time passed more than 7 days ago, excluding blocks marked "dropped" (Must 6). Only blocks in the denominator count in the numerator. A block counts toward its original week. The unconfirmed share is shown with it. The learning loop needs about 70% or more.
+- **Confirmation rate:** confirmed blocks divided by blocks whose end time passed more than 7 days ago, excluding blocks marked "task deleted" (Must 6). Only blocks in the denominator count in the numerator. A block counts toward its original week. The unconfirmed share is shown with it. The learning loop needs about 70% or more.
 - **Planning time:** a day's planning time is the active editing time that day: capture, running the suggester, creating, moving or resizing blocks, and confirmation prompts, from opening a prompt to saving it (including late confirmations of earlier days). Just viewing the planner does not count. Idle gaps longer than 60 seconds without input events are excluded. Active days per week are shown next to it.
 - **Load guardrail:** two numbers per week, by block start in the home zone:
   - planned block hours divided by the week's template time (working, focus and personal ranges, minus hard events);
@@ -69,7 +69,7 @@ If the answers are mostly no, candidate changes are writing blocks to Google Cal
 - **Unconfirmed block:** a block whose end time has passed and has not been confirmed. Once its 7-day confirmation window closes, it is shown as "Unconfirmed, window closed": locked, no longer asking for confirmation, and excluded from insights.
 - **Missed block:** an unconfirmed block that is 30 minutes past its end time. It triggers the reschedule prompt (see Should, postponement handling).
 - **Postponement:** a block that did not happen at its planned time. It is counted once per miss.
-  - It happens when a block whose start has passed is confirmed "didn't do it", is moved to a new time (a missed block that is rescheduled, or any past unconfirmed block that is moved), or is marked "dropped" because its task was dropped or deleted (Must 6).
+  - It happens when a block whose start has passed is confirmed "didn't do it", is moved to a new time (a missed block that is rescheduled, or any past unconfirmed block that is moved), or is marked "task deleted" because its task was deleted (Must 6).
   - "Didn't do it" followed by rescheduling counts as one postponement, not two.
   - A rescheduled block is the same block moved, so it keeps its frozen original start and original week. If it is missed again at its new time, that counts as another postponement.
   - It is not a postponement when the user confirms the block happened at the new time, with "as planned" or "it took X".
@@ -108,12 +108,13 @@ Release stages:
    - "Partly done": the user enters the time done and the remaining estimate. The done time is recorded, and the remainder stays as an unplanned part of the same task with that estimate. A remainder under 15 minutes is planned as a 15-minute block.
    - "Didn't do it" counts as a postponement and offers a new slot for the same block. Accepting the slot does not add a second postponement (see glossary).
    - Given a block that stays unconfirmed, then the next time the user opens the app after the end of day, an in-app banner asks to confirm it, and the block stays "unconfirmed" until then. (Must 11 adds notifications when a block starts and when it ends, while the app is open.) A block can be confirmed late for up to 7 days after its end.
-   - A confirmed block can be edited for up to 7 days after its end. The edit is recorded and the metrics update.
+   - A confirmed block can be edited for up to 7 days after its end. The edit is recorded and the metrics update. It applies as if the new outcome had been chosen in the first place: it can mark the task done, reopen a task that this block auto-marked done, set or clear the remainder this block recorded, and move the block to a new actual start (not a postponement). A block moved by "didn't do it" has no confirmation to edit.
+   - In the app the list of blocks to confirm is called "Check in"; "confirm" stays the term in this document.
    - Unconfirmed blocks are excluded from insights and duration suggestions.
    - "It took X" and the time done for "partly done" accept 1 minute to 24 hours.
    - Given the block was moved or resized on another device after the user opened it, when the user confirms, then the app shows the new time and asks the user to confirm again. This is the one exception to "the later edit wins" (Must 12).
    - Given the task is already marked done, then confirming one of its past blocks never plans more work: "didn't do it" counts as a postponement but offers no new slot, and "partly done" records the time done with no remainder.
-   - Unconfirmed blocks are listed oldest first in a "To confirm" list. The notification, the in-app prompt and the end-of-day banner open it, and a block in the calendar can also be confirmed directly. A block that is 30 minutes past its end is labelled "Missed" there; the reschedule prompt for missed blocks stays a Should (postponement handling).
+   - Unconfirmed blocks are listed oldest first in a "Check in" list. The notification, the in-app prompt and the end-of-day banner open it, and a block in the calendar can also be confirmed directly. A block that is 30 minutes past its end is labelled "Missed" there; the reschedule prompt for missed blocks stays a Should (postponement handling).
 3. **Google Calendar import, read only.** Imported events that block time, under the rules below, are hard events.
    - The user chooses which of the account's calendars are imported. Recurring events are expanded per instance.
    - The suggester never places a block over a hard event. Manual placement over one follows Must 1 (warning and confirm tap).
@@ -137,11 +138,13 @@ Release stages:
    - Each task type uses work time, personal time or any time, which decides the available time the suggester may use for it. Defaults: Work and Admin use work time, Personal uses personal time, Other uses any. New types use any until changed.
    - Deleting a type moves its tasks and history to "Other", and the metrics are recomputed. It asks inline first and has no undo. "Other" cannot be deleted.
    - A task can have one or more blocks, and it is done when the user marks it done. A task with an unplanned remainder (see Must 2) is not marked done automatically.
-   - Given the user marks a task done, then its future planned blocks are removed (not a postponement), its past unconfirmed blocks stay in the "To confirm" list, and its confirmed blocks are unchanged. Unticking it within 7 days restores the removed blocks whose start has not passed.
-   - Given a task is dropped, then its future planned blocks are removed, its confirmed blocks stay, and it counts as not done. A drop can be undone for 7 days. Undo restores the task and the removed blocks whose start has not passed yet. The time of the others becomes unscheduled time again.
-   - Given a task is dropped or deleted, then its past unconfirmed blocks are marked "dropped". They stop asking for confirmation, are left out of the confirmation rate, and each counts as one postponement (see glossary).
-   - Deleting a task can be undone only from the undo message (section 6, U3). After that, its title is removed (Must 14). Dropping is the way to keep a task recoverable for 7 days. A deleted single block can be restored for 7 days.
-   - Given a task is deleted, then its future blocks are removed, its confirmed blocks stay in the estimate error and in duration suggestions, and it counts as not done. Dropped and deleted tasks stay in the metrics until the user runs "delete all".
+   - Given the user marks a task done, then its future planned blocks are removed (not a postponement), its past unconfirmed blocks stay in the "Check in" list, and its confirmed blocks are unchanged. Unticking it within 7 days restores the removed blocks whose start has not passed.
+   - Given the user chooses "Not now" on a task, then its future planned blocks are removed (not a postponement), its past unconfirmed blocks stay in the "Check in" list, and the task stays open with its time unscheduled. It can be undone from the undo message.
+   - Delete is the only way to remove a task. There is no drop and no "Recently removed" list.
+   - Given a task is deleted, then its past unconfirmed blocks are marked "task deleted". They stop asking for confirmation, are left out of the confirmation rate, and each counts as one postponement (see glossary).
+   - Deleting a task, or a single block, can be undone only from the undo message (section 6, U3). After that, a deleted task's title is removed (Must 14), and a deleted block can't be restored.
+   - Given a task is deleted, then its future blocks are removed, its confirmed blocks stay in the estimate error and in duration suggestions, and it counts as not done. Deleted tasks stay in the metrics until the user runs "delete all".
+   - Adding a task has no undo. A wrong task is renamed or deleted like any other task.
    - A single unconfirmed block can also be deleted. Confirmed blocks cannot be deleted, because estimates and metrics depend on them; a wrong confirmation is edited instead (Must 2).
 7. **Fast capture.**
    - A task can be saved in at most 3 taps, or one typed line, counted from opening the capture entry. The test is a step count.
@@ -231,7 +234,7 @@ Release stages:
       
       Re-import is not required.
     - Deleted tasks are kept as records with an ID, flags and outcome only (no title), so the metrics stay correct. They are included in the export in that form.
-15. **Metrics view.** The app shows the metrics defined in section 3, computed exactly as defined there, per week, with the first 4 weeks marked as the baseline. It records the events behind them from Release 1a: task created, block created, moved or resized, confirmation, task done or dropped, and planning sessions (section 3, planning time). Sessions from two devices at the same time are counted once.
+15. **Metrics view.** The app shows the metrics defined in section 3, computed exactly as defined there, per week, with the first 4 weeks marked as the baseline. It records the events behind them from Release 1a: task created, block created, moved or resized, confirmation, task done, not now or deleted, and planning sessions (section 3, planning time). Sessions from two devices at the same time are counted once.
     - Each event stores its type, the task or block ID, a timestamp and the data the metrics need, with no typed content:
       - block moves and resizes store the old and new start and end;
       - confirmations store the outcome, the actual time and the actual start;
@@ -261,16 +264,16 @@ Release stages:
       - a flexible weekly target, for example "gym 3 times a week". This can be limited to chosen days and a time of day (morning, afternoon or evening).
     - **Occurrences are ordinary tasks.**
       - Each occurrence is created as its own task, with the same title, type, flags, estimate and checklist (unticked).
-      - Confirmation, postponement, drop, delete and all metrics work for it as for any task. Its completion-rate cohort is the week of its own first block.
+      - Confirmation, postponement, delete and all metrics work for it as for any task. Its completion-rate cohort is the week of its own first block.
     - **Creation window.** Occurrences are created for the next 14 days, and the next occurrence always exists. All times use the home zone (Must 12).
     - **Fixed-time occurrences** are created with their block at that time. Given that time overlaps a hard event, another block or a recovery buffer, then the occurrence is still created, flagged "may be affected", and shown for the user to resolve. It is never moved silently.
     - **Flexible occurrences** are created without blocks, one task per required time in the week. The suggester (Must 8) includes them in its runs by default, places at most one occurrence of a series per day, spreads them across the allowed days, and respects the time-of-day limit.
     - **No pile-up.** An occurrence that is not done by the end of its period counts as not done. It is not carried into the next period, and the next occurrence is created as normal.
-    - **Editing.** Changing a recurring task offers "this occurrence" or "this and future occurrences". Changes never touch past or confirmed occurrences. Ending or deleting a series removes its future occurrences and keeps past ones. It asks no question and can be undone from the Undo message, like deleting tasks (section 6, U3).
+    - **Editing.** Changing a recurring task offers "this occurrence" or "this and future occurrences". Changes never touch past or confirmed occurrences. Ending a series removes its future occurrences and keeps past ones as ordinary tasks; there is no separate "delete series". It asks no question and can be undone from the Undo message, like deleting tasks (section 6, U3).
     - Duration suggestions (Must 10) treat occurrences as tasks of their type.
 
 ### Should
-- Postponement handling: a missed block triggers a prompt to reschedule it to a specific new slot instead of drifting, and the app counts postponements. A task postponed three times prompts "split it, shrink it, or drop it?". The user picks the new slot, with suggester or assistant help. Choosing a slot is manual or assisted; fully automatic replanning stays in Later.
+- Postponement handling: a missed block triggers a prompt to reschedule it to a specific new slot instead of drifting, and the app counts postponements. A task postponed three times prompts "split it, shrink it, or delete it?". The user picks the new slot, with suggester or assistant help. Choosing a slot is manual or assisted; fully automatic replanning stays in Later.
 - Overload check: the app warns you before the week starts if planned work exceeds your free time.
 - Month and year planning with placeholders and reserved planning slots, plus light reminders when a planning slot arrives. A placeholder that has been detailed stays on the month and year views as a summary linked to its tasks. Deleting a placeholder keeps its tasks as ordinary tasks.
 - Summaries for a day, week, month or year, shown when the user asks (for example "how was my week?" in the chat or a summary button), not pushed automatically. A summary covers:
@@ -392,12 +395,12 @@ Must 16 sets the target (WCAG 2.2 level AA). In addition:
 - **U2 Responsive (1a).** Works from 320 px wide, in portrait and landscape. Breakpoints: phone under 640 px, tablet 640–1024 px, desktop above 1024 px.
 - **U3 Feedback and recovery (1a).**
   - Every action shows its result.
-  - Deleting a block or task, dropping a task, capturing a task, marking a task done and ending a series can be undone from a message shown for at least 10 seconds (15 seconds by default). Dropped tasks and deleted blocks can also be restored for 7 days afterwards (Must 6).
+  - Deleting a block or task, "Not now", marking a task done and ending a series can be undone from a message shown for at least 10 seconds (15 seconds by default). Nothing can be restored after the message closes (Must 6). Undo is not available offline; an action whose deadline passes while offline is final.
   - The Undo message meets WCAG 2.2.1 (timing adjustable):
     - its timer pauses while it has keyboard focus or the pointer is over it;
-    - Ctrl+Z (Cmd+Z) undoes the latest action outside text fields, and in the empty capture field right after a save. In a field with typing to undo, it undoes the typing;
+    - Ctrl+Z (Cmd+Z) undoes the latest action in the message when focus is outside a text field. In a text field it undoes typing;
     - a setting keeps Undo messages until the user closes them, for at most 10 minutes;
-    - actions made while a message is open are grouped into it, rather than stacked.
+    - actions made while a message is open join it as an ordered list, rather than stacked. Undo all undoes them newest first.
   - Confirmation dialogs are used only for delete all and the overlap warning (Must 1). Deleting a task type or a placeholder, and disconnecting Google Calendar, ask inline instead.
 - **U4 Forms (1a).** Inline validation, autofill hints, and native input types for dates, times and numbers.
 - **U5 Language (1a).** Plain language, using the terms in the glossary (section 4) consistently.
@@ -528,6 +531,11 @@ Each item is owned by the owner (Nataly), and no decision date is set yet. The f
 - Behavior not yet defined: notification deduplication across devices; the availability template's behavior when it conflicts with calendar events; limits on tasks, blocks and history length; the LLM cost cap and rate limit values; which languages to add after English; time-zone handling of imported events; what deleting a past unconfirmed block does to the confirmation rate.
 
 ## Changelog
+- **v0.4 (2026-11-18, approved 2026-11-18):** decisions from the strict review of design step 1 (user flows 0.4, screens and wireframes).
+  - **Must 6:** Drop is removed. "Not now" takes a task's future blocks off the calendar and keeps it open. Delete is the only removal. There is no "Recently removed": deleted tasks and blocks come back only through Undo. The block state "dropped" is renamed "task deleted" (glossary, section 3). Adding a task has no undo.
+  - **Must 2:** rules for editing a confirmation. The list is called "Check in" in the app.
+  - **Must 15 and 18:** event and wording updates; only "End series".
+  - **Section 6, U3:** the Undo list follows Must 6, Ctrl+Z works outside text fields only, grouping is an ordered list, and Undo is not available offline.
 - **v0.3 (2026-11-16, approved 2026-11-16):** decisions from design step 1, the user flows (`docs/design/01-user-flows/`).
   - **Closed open questions:** the first-run flow (Must 5, starter template) and what a block shows after its 7-day window (glossary, "Unconfirmed, window closed").
   - **Must 2:** a "To confirm" list plus inline confirmation, and a "Missed" label in 1a. The reschedule prompt stays a Should. Input limits for "it took X" and "partly done". Confirming a block moved on another device asks again. Confirming an old block of a done task never plans more work.

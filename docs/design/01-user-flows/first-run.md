@@ -58,6 +58,7 @@ flowchart LR
   Q{Calendar access given at sign-in?}:::decision -->|yes| A[Choose calendars]:::step
   Q -->|no| K[Connect calendar]:::step --> A
   K -->|skip| Z
+  K -.->|declined or cancelled| Z
   A --> I[[Import events]]:::sys --> Z[Confirm time zone]:::step --> T{Use starter template?}:::decision
   I -.- IL[Loading: importing n of m]:::state
   A -->|skip| Z

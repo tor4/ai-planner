@@ -69,10 +69,10 @@ flowchart LR
 1. The planning block's normal reminder fires (see [reminders-and-confirmation.md](reminders-and-confirmation.md)). Detailing can also start earlier from the placeholder itself.
 2. Open the placeholder and add tasks. They are ordinary tasks, linked to the placeholder.
 3. The placeholder stays on the month and year views as a summary, "3 tasks planned", with links to its tasks (decided).
-4. The planning block is confirmed like any block, after its end, through the normal To confirm path. Detailing early does not confirm it. "As planned" marks "Plan: Vacation" done.
+4. The planning block is confirmed like any block, after its end, through the normal Check in path. Detailing early does not confirm it. "As planned" marks "Plan: Vacation" done.
 
 **States and errors**
-- **Planning slot unused:** the placeholder shows "Not detailed yet". The planning block follows the normal Missed and To confirm path.
+- **Planning slot unused:** the placeholder shows "Not detailed yet". The planning block follows the normal Missed and Check in path.
 - **Task not saved:** "Couldn't save the task. Retry." The text stays.
 
 **Accessibility**

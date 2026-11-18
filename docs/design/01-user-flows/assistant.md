@@ -79,7 +79,8 @@ flowchart LR
 **States and errors**
 - **Empty:** example questions, and "Chats are kept 30 days."
 - **Loading:** "Reading your data…"
-- **Unavailable:** provider down, cost cap, rate limit or kill switch. "Assistant unavailable. The planner works as usual." The input is disabled (Must 13).
+- **Unavailable:** provider down, cost cap or rate limit. "Assistant unavailable. The planner works as usual." The input is disabled (Must 13).
+- **Turned off by its feature flag (kill switch):** the assistant is hidden: no chat button, rail item or settings entry (PRD R6).
 - **Too much data:** "That covers too much data. Try 13 months or fewer."
 - **Off-topic:** a polite decline (Must 13).
 - **Distress:** a caring reply with crisis resources, and no medical advice (Must 13).
@@ -141,7 +142,7 @@ flowchart LR
 ┌──────────────────────────────┐
 │ What the assistant can see   │ dialog · h2
 │ Always sent: times, durations,│
-│ flags, a type number.        │
+│ flags, a type ID.            │
 │ Never sent: event            │
 │ descriptions, attendees.     │
 │ ① Task titles          ○     │ switches, off
@@ -159,7 +160,7 @@ flowchart LR
 
 ### Chat (Should)
 
-- **Phone:** a full screen from the planner's toolbar. **Tablet and desktop:** the Assistant panel from the rail.
+- **Phone:** a full screen from the "Assistant" button in the planner's toolbar, which appears only when the assistant is enabled. **Tablet and desktop:** the Assistant panel from the rail.
 
 ```
 ┌──────────────────────────────────┐

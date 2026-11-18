@@ -36,7 +36,7 @@ flowchart LR
 1. Tap "Plan my tasks". By default it plans every open task with unscheduled time (Must 8). "Choose tasks" is optional, which keeps the shortest path at two steps (plan, accept).
 2. The suggester places each task in the earliest free slot that fits, in priority order, never over a hard event, another block or a recovery buffer (Musts 8 and 9).
 3. The proposals appear as dashed "Proposed" blocks in the day or week view, and as a list.
-4. Accept all, accept some, move or resize a proposal before accepting, or discard all.
+4. Accept all, accept some, move or resize a proposal before accepting (by dragging, or with "Edit time" on its list row), or discard all.
 5. Accepted proposals are saved as blocks (Must 1).
 
 **No slot fits (Must 8).** The task is listed as "No free slot before the deadline", with the four choices from Must 8 plus "Leave it":
@@ -64,11 +64,11 @@ flowchart LR
 ## Place, move or resize a block by hand (1a)
 
 - **Goal:** put a task at a specific time, or change a block's time.
-- **Entry:** drag on the grid, "Add block" on a task, or "Edit time" on a block.
+- **Entry:** drag on the grid, "Place…" on a task (task details or a task's menu), or "Edit time" on a block.
 - **Preconditions:** the task exists and the block is not confirmed.
 - **Success:** the block is saved at the new time.
 
-Moving a block whose start has passed (an Unconfirmed or Missed block) counts as one postponement (PRD glossary). Before saving, the move says so: "This block's time has passed. Moving it counts as postponed." Moving a future block never does.
+Moving a block whose start has passed (in progress, Unconfirmed or Missed) counts as one postponement, unless the user then confirms it happened at the new time with "as planned" or "it took X" (PRD glossary). Before saving, the move says so: "This block's time has passed. Moving it counts as postponed unless you confirm it happened at the new time." Moving a future block never counts. Setting an actual start with "it took X" also moves a block without a postponement (Must 2); that happens in confirmation, not here.
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
@@ -92,8 +92,8 @@ flowchart LR
 **Steps**
 1. Place, move or resize the block in one of three ways (Must 16):
    - drag on the grid;
-   - with the keyboard: select the block, then use the arrow keys to move it 15 minutes, Shift + arrows to resize, and Enter to save;
-   - with start and end time fields.
+   - with the keyboard: choose "Move with keys" in the block menu. Up and Down move it 15 minutes earlier or later. Left and Right move it to the previous or next day at the same time. Shift + Up and Shift + Down shorten or lengthen it by 15 minutes. Enter saves and Esc cancels;
+   - with date, start and end fields in Edit block.
 2. If the block overlaps a hard event, another block or a recovery buffer, a warning names what it overlaps and asks "Place anyway?" (Must 1).
 3. The block is saved. Its result shows within 100 ms, before the server answers (PRD P2).
 
@@ -105,7 +105,7 @@ flowchart LR
 - Esc while dragging or in the keyboard mode puts the block back. "Don't place" on the overlap warning does the same.
 
 **Accessibility**
-- The keyboard mode is announced as "Moving Write report, 10:00 to 11:00. Arrows move, Shift + arrows resize, Enter saves, Esc cancels."
+- The keyboard mode is announced as "Moving Write report, Monday 10:00 to 11:00. Up and Down move, Left and Right change the day, Shift resizes, Enter saves, Esc cancels."
 - Each change of time is announced.
 - The overlap warning is a dialog. Focus starts on "Don't place", the safer choice, and Esc does the same.
 
@@ -122,7 +122,6 @@ Confirmed blocks cannot be deleted, on purpose: they record what happened, and e
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
 flowchart LR
   A[Block menu]:::step --> D[Delete block]:::step --> S[[Remove block]]:::sys --> T([Deleted, Undo shown]):::ok
-  T -->|after Undo closes| R([In Recently removed for 7 days]):::ok
   A -->|close menu| E([Nothing changed]):::exit
   S -.-> X[Error: not deleted, retry]:::error
   classDef step fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
@@ -137,7 +136,7 @@ flowchart LR
 **Steps**
 1. Choose "Delete block" in the block's menu (Must 6).
 2. The block is removed, and its time becomes unscheduled time on the task, so the next suggester run can place it again.
-3. An Undo message shows "Block deleted · Undo" (PRD U3, see the README, Undo). Afterwards it can be restored from Recently removed for 7 days (Must 6).
+3. An Undo message shows "Block deleted · Undo" (PRD U3, see the README, Undo). Once it closes, the block can't be restored (decided: no Recently removed).
 
 What deleting a past unconfirmed block does to the confirmation rate is not defined in the PRD. It is listed in the README's gaps for the data-model step.
 
@@ -153,7 +152,7 @@ What deleting a past unconfirmed block does to the confirmation rate is not defi
 ## Overload check (Should)
 
 - **Goal:** notice before the week starts that more work is planned than fits.
-- **Entry:** shown by the app on the first app open of the week, and in the week view.
+- **Entry:** shown by the app in the planner from Friday 12:00 to the end of Sunday for the coming week, and on Monday for the current week.
 - **Preconditions:** the template exists, and the planned hours for the coming week exceed the free hours.
 - **Success:** the user adjusts the week, or knowingly keeps it.
 
@@ -175,7 +174,7 @@ flowchart LR
 ```
 
 **Steps**
-1. Before the week starts, the app compares planned block hours with the template's free hours (PRD section 5, Should).
+1. From Friday noon, the app compares planned block hours with the template's free hours (PRD section 5, Should).
 2. If the plan is over, a banner states both numbers.
 3. Adjust opens the week view. Dismiss keeps the plan, and the banner does not return that week.
 
@@ -193,8 +192,8 @@ The frame, navigation, View options and block kinds are in the [README](README.m
 
 ```
 ┌──────────────────────────────────┐
-│ ① ‹ ② Mon 16 Nov ③ ›  ④ ⚙  ⑤ +   │ banner: toolbar
-│ Berlin time      ⑥ Plan my tasks │
+│ ① ‹ ② Mon 16 Nov ③ › ④ View ⑤ +  │ banner: toolbar
+│ ⑥ Plan my tasks                  │
 ├──────────────────────────────────┤ main · h1 "Monday 16 November"
 │ ⚠ Events as of 10:42  ⑦ Refresh  │ only when stale
 │ 09 ┃ ⑧ Write report · Planned    │
@@ -202,30 +201,30 @@ The frame, navigation, View options and block kinds are in the [README](README.m
 │ 11 ▨ Buffer                      │ not focusable
 │ 14 ⊘ ⑩ Tax return · Missed       │
 ├──────────────────────────────────┤
-│ ⑪ Plan ⑫ Tasks ⑬ Confirm 2 ⑭ Metrics ⑮ More │
+│ ⑪ Plan ⑫ Tasks ⑬ Check in 2 ⑭ Metrics ⑮ More │
 └──────────────────────────────────┘
 ```
 
-- **Tablet and desktop:** the same toolbar adds "Day | 3 days | Week". The grid shows 3 days on tablet and 7 on desktop, Monday first, today marked with "Today" as text. The rail opens To confirm, Tasks or Proposals beside the grid (desktop) or over it (tablet). The week heading is "16–22 November 2026".
+- **Tablet and desktop:** the same toolbar adds "Day | 3 days | Week". The grid shows 3 days on tablet and 7 on desktop, Monday first, today marked with "Today" as text. The rail opens Check in, Tasks or Proposals beside the grid (desktop) or over it (tablet). The week heading is "16–22 November 2026".
 
 | # | Element | HTML / role | Accessible name | Req |
 |---|---|---|---|---|
 | ① ③ | Previous, next | button | "Previous day", "Next day" (or week) | A1 |
-| ② | Date | button, opens a date picker | "Monday 16 November, choose a date" | A2 |
-| ④ | View options | button | "View options" | README |
+| ② | Date | button, opens a date picker | "Mon 16 Nov, choose a date" | A2, WCAG 2.5.3 |
+| ④ | View | button | "View options" | README |
 | ⑤ | New task | button, 44 × 44 px | "New task" | Must 7, A4 |
 | ⑥ | Plan my tasks | button | "Plan my tasks" | Must 8 |
 | ⑦ | Refresh | button | "Refresh calendar events" | Must 3 |
 | ⑧ ⑩ | Block | button in a list | "Write report, 09:00 to 10:00, planned" | Must 1, 16 |
 | ⑨ | Hard event | list item, not editable | "Team call, 10:00 to 11:00, busy" | Must 3 |
 
-- **Screen reader:** the h1 is the date. Blocks and events are a list in time order, so the grid is never the only way to read the day. Enter or Space on a block opens its menu: Edit time, Move with keys, Delete, Confirm (once the end has passed), Open task. Changing the day announces "Tuesday 17 November, 3 blocks".
+- **Screen reader:** the h1 is the date. Blocks and events are a list in time order, so the grid is never the only way to read the day. Enter or Space on a block opens its menu, whose items depend on the block's state (see Block menu). The grid can also be used by keyboard: arrow keys move focus between time slots and days, and Enter on an empty slot opens Edit block for a new block at that time, after choosing the task. Changing the day announces "Tuesday 17 November, 3 blocks".
 - **States:**
   - Empty: "Your day is empty." with a New task button.
   - Loading: a skeleton of four blocks.
   - Stale events: the banner above the grid.
   - No connection: the README banner, and blocks can't be picked up.
-  - Time zone mismatch: "Your device is in New York time. Plans use Berlin time." under the toolbar.
+  - Time zone mismatch: "Your device is in New York time. Plans use Berlin time." under the toolbar. The grid, the date and "today" follow the device zone (Must 12, display follows the device zone), and every time in the accessible names is device time. Example: home Berlin, device New York; a block at 15:00 Berlin shows at 09:00 on the New York grid. A home-zone block that crosses device-zone midnight is drawn on both days, with "continues" and "continued" labels.
 - **Drag targets:** dragging is optional. Every drag result is also reachable through the block menu (Must 16).
 
 ### Review proposals (1a)
@@ -243,7 +242,7 @@ The frame, navigation, View options and block kinds are in the [README](README.m
 │ ① ☑ Write report  Mon 09:00–11:00│
 │ ② ☑ Call bank     Mon 11:15–11:45│
 │ ③ ☐ Tax return    No free slot › │ opens no-slot choices
-│ ④ Accept selected (2)            │ primary
+│ ④ Accept 2 proposals             │ primary
 │ ⑤ Discard all                    │
 └──────────────────────────────────┘
 ```
@@ -256,6 +255,7 @@ The frame, navigation, View options and block kinds are in the [README](README.m
 | ③ | No slot | link | "Tax return, no free slot, see choices" | Must 8 |
 | ④ | Accept | button, primary | "Accept 2 proposals" | Must 1 |
 | ⑤ | Discard | button | "Discard all proposals" | Must 8 |
+| — | Edit time, on each row | button | "Edit time, Write report" | Must 16 |
 
 - **Screen reader:** opening announces "5 proposals" and focuses the list heading. Each proposed block on the grid is also a button that moves focus to its list row.
 - **States:** "Nothing to plan. Every open task already has blocks." when empty; "Set your weekly template first" with a button when there is no template; a save failure keeps the list with "Couldn't save. Retry."
@@ -277,7 +277,7 @@ The frame, navigation, View options and block kinds are in the [README](README.m
 └──────────────────────────────────┘
 ```
 
-- **Elements:** five buttons, each at least 44 px tall. Shrink opens the estimate field in place; the others act at once and return to Review proposals.
+- **Elements:** five buttons, each at least 44 px tall. Shrink opens the estimate field in place and searches again. Split and Ignore the deadline search again and return to Review proposals. Move another block opens manual placement, then searches again. Leave it returns to Review proposals with the task unplanned.
 - **Screen reader:** the heading and the deadline sentence are read first, then the five choices.
 
 ### Overlap warning (1a)
@@ -297,33 +297,55 @@ The frame, navigation, View options and block kinds are in the [README](README.m
 - **Elements:** a modal dialog with two buttons. Esc equals "Don't place".
 - **Screen reader:** announced as "Overlaps Team call" with the sentence as its description. Focus returns to the block afterwards.
 
+### Block menu (1a)
+
+- **Opened by:** a tap, or Enter or Space, on a block. Hard events have no menu; Enter reads their details.
+- **Items depend on the block's state:**
+
+| State | Items, in order |
+|---|---|
+| Planned, start in the future | Edit time · Move with keys · Open task · Earlier versions · Delete block |
+| In progress (start passed, end not) | Edit time · Open task · Earlier versions · Delete block |
+| Unconfirmed or Missed | Check in · Edit time · Open task · Earlier versions · Delete block |
+| Confirmed, under 7 days since its end | Edit confirmation · Open task · Earlier versions |
+| Confirmed, 7 days or more | Open task. The block shows "Confirmed, can't be changed". |
+| Unconfirmed, window closed | Open task. Read-only. |
+| Task deleted | Read-only, no menu items; the task no longer exists. |
+| Any state flagged "May be affected" | adds "Dismiss may be affected" at the top |
+
+- **Elements:** a menu button per block; each item is a menu item named with its text and the block title, for example "Edit time, Write report".
+- **States:** a read-only block's menu explains why in one line, for example "The confirmation window closed on 23 Nov."
+
 ### Edit block (1a)
 
 - **Flows:** Place, move or resize a block; Delete a block; Restore an earlier version.
+- **Shown for:** blocks that are not confirmed. A confirmed block opens Edit a confirmation instead (see [reminders-and-confirmation.md](reminders-and-confirmation.md)).
 - **Phone:** a bottom sheet over the day view. **Tablet and desktop:** a pop-over next to the block.
 
 ```
 ┌──────────────────────────────────┐
 │ Write report                ① ✕  │ dialog · h2
-│ ② Start  [ 09:00 ]               │ native time input
-│ ③ End    [ 10:00 ]               │
-│ ④ Move with keys                 │
-│ ⑤ Open task                      │
-│ ⑥ Earlier versions               │
-│ ⑦ Delete block                   │ not shown for confirmed blocks
-│ ⑧ Save                           │ primary
+│ ② Date   [ Mon 16 Nov ]          │ native date input
+│ ③ Start  [ 09:00 ]               │ native time input
+│ ④ End    [ 10:00 ]               │
+│ ⑤ Move with keys                 │
+│ ⑥ Open task                      │
+│ ⑦ Earlier versions               │
+│ ⑧ Delete block                   │
+│ ⑨ Save                           │ primary
 └──────────────────────────────────┘
 ```
 
 | # | Element | HTML / role | Accessible name | Req |
 |---|---|---|---|---|
-| ②③ | Start, end | input type time with label | "Start", "End" | Must 16, U4 |
-| ④ | Move with keys | button | "Move Write report with the keyboard" | Must 16 |
-| ⑦ | Delete block | button | "Delete block Write report" | Must 6 |
-| ⑧ | Save | button | "Save" | Must 1 |
+| ② | Date | input type date with label | "Date" | Must 16, U4 |
+| ③④ | Start, end | input type time with label | "Start", "End" | Must 16, U4 |
+| ⑤ | Move with keys | button | "Move with keys, Write report" | Must 16 |
+| ⑧ | Delete block | button | "Delete block, Write report" | Must 6 |
+| ⑨ | Save | button | "Save" | Must 1 |
 
-- **Screen reader:** Move with keys closes the sheet and announces "Moving Write report, 09:00 to 10:00. Arrows move, Shift + arrows resize, Enter saves, Esc cancels."
-- **States:** invalid times show inline errors under the field (PRD A5). Moving a past block shows "This block's time has passed. Moving it counts as postponed." above Save.
+- **Screen reader:** "Move with keys" closes the sheet and announces "Moving Write report, Monday 09:00 to 10:00. Up and Down move, Left and Right change the day, Shift resizes, Enter saves, Esc cancels."
+- **States:** invalid values show inline errors under the field (PRD A5). Moving a block whose start has passed shows "This block's time has passed. Moving it counts as postponed unless you confirm it happened at the new time." above Save.
 
 ### Overload banner (Should)
 

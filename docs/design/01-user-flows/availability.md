@@ -216,7 +216,7 @@ Settings screens use the frame in the [README](README.md#screens-frame-navigatio
 │ ① Buffer after long meetings     │
 │   [ 10 ] minutes (0–60)          │
 │ ② A meeting is long from         │
-│   [ 60 ] minutes                 │
+│   [ 60 ] minutes (30–240)        │
 │ ③ Default task duration          │
 │   [ 30 ] minutes                 │
 │ ④ Why a buffer?                  │ Should: evidence tip

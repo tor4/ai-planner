@@ -31,7 +31,7 @@ flowchart LR
 1. Choose the rule: daily, chosen weekdays, weekly, every N weeks, or monthly on a date or a day such as "the first Monday". Optionally add an end date or a number of times (Must 18).
 2. Choose the kind:
    - **Fixed time**, for example "Mondays 08:00–08:30";
-   - **Weekly target**, for example "gym 3 times a week", optionally limited to days and a time of day (Must 18).
+   - **Weekly target**, for example "gym 3 times a week", optionally limited to days and a time of day: morning 06:00–12:00, afternoon 12:00–17:00, evening 17:00–22:00 (Must 18; the boundaries are a design default).
 3. A preview lists the next 5 dates.
 4. Save. Occurrences are created for the next 14 days. Fixed ones get their blocks at once. Weekly-target ones join "Plan my tasks", at most one per day (Must 18).
 
@@ -48,7 +48,7 @@ flowchart LR
 ## Resolve a fixed occurrence overlap (1b)
 
 - **Goal:** decide what to do when a fixed occurrence lands on busy time.
-- **Entry:** the "Needs a decision" count in the day and week views and the task list. Also the "May be affected" label on the block.
+- **Entry:** the "Needs a decision" filter in Tasks, and the "May be affected" label on the block.
 - **Preconditions:** a fixed occurrence was created over a hard event, another block or a recovery buffer.
 - **Success:** the block is moved, kept, or the occurrence skipped.
 
@@ -58,7 +58,7 @@ flowchart LR
   A[Needs a decision]:::step --> B{Move, keep or skip?}:::decision
   B -->|move| M([Block moved]):::ok
   B -->|keep| K([Kept, overlap accepted]):::ok
-  B -->|skip| S([Occurrence dropped]):::ok
+  B -->|skip| S([Occurrence deleted, Undo shown]):::ok
   A -.- E[Empty: nothing needs a decision]:::state
   classDef step fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
   classDef sys fill:#E6F1FB,stroke:#185FA5,color:#042C53
@@ -74,7 +74,7 @@ flowchart LR
 2. The choices:
    - **Move:** uses manual placement (see [planning.md](planning.md)).
    - **Keep:** accepts the overlap and clears the flag.
-   - **Skip:** drops this occurrence only (Must 6).
+   - **Skip:** deletes this occurrence only, with Undo (Must 6).
 3. The item leaves the list.
 
 **Accessibility**
@@ -115,14 +115,14 @@ flowchart LR
 ## End a series (1b)
 
 - **Goal:** stop a routine.
-- **Entry:** "End series" or "Delete series" in task details of any occurrence.
+- **Entry:** "End series" in task details of any occurrence, or on the Repeat screen.
 - **Preconditions:** the task belongs to a series.
 - **Success:** future occurrences are removed, and past ones are kept.
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
 flowchart LR
-  E[End or delete series]:::step --> R[[Remove future occurrences]]:::sys --> T([Series ended, Undo shown]):::ok
+  E[End series]:::step --> R[[Remove future occurrences]]:::sys --> T([Series ended, Undo shown]):::ok
   T -->|Undo| U([Series and occurrences back]):::exit
   R -.-> X[Error: not ended, retry]:::error
   classDef step fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
@@ -135,7 +135,7 @@ flowchart LR
 ```
 
 **Steps**
-1. Choose "End series" or "Delete series". Future occurrences are removed, with their blocks, and past ones are kept (Must 18). No question is asked, the same as deleting a task (decided).
+1. Choose "End series" (decided: there is no separate "Delete series"). Future occurrences are removed, with their blocks, and past ones stay as ordinary tasks with their history (Must 18). No question is asked, the same as deleting a task (decided). A past occurrence is removed by deleting that task like any other.
 2. The Undo message shows "Gym ended · 4 occurrences removed · Undo", with the usual timer, pause and Ctrl+Z (README, Undo). Undo brings back the series and its future occurrences with their blocks.
 
 **States and errors**

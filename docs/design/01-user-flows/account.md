@@ -127,7 +127,8 @@ flowchart LR
 
 **States and errors**
 - **Revoke failed:** deletion continues. The final screen says "We couldn't remove Google access automatically. Remove it in your Google account settings." with a link (architecture 7.9).
-- **Delete failed:** "Nothing was deleted. Retry." Deletion happens all at once, so there is never a partial delete.
+- **Delete failed, access already removed:** "Your data wasn't deleted, but Google access was removed. Retry to finish." Retry runs only the deletion. Until it succeeds, the calendar shows as disconnected. Deletion itself happens all at once, so there is never a partial delete of data.
+- **Delete failed before anything changed:** "Nothing was deleted. Retry."
 
 **Exits**
 - Cancel in the dialog deletes nothing.

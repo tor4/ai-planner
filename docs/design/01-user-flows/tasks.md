@@ -12,8 +12,7 @@ Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
 flowchart LR
-  A[Open New task]:::step --> B[Type title]:::step --> C[Press Enter]:::step --> S[[Save as Other]]:::sys --> D([Added, Undo shown]):::ok
-  D -->|Undo| U([Task removed]):::exit
+  A[Open New task]:::step --> B[Type title]:::step --> C[Press Enter]:::step --> S[[Save as Other]]:::sys --> D([Added]):::ok
   C -->|title empty| B
   A -->|Esc or close| E([Closed, nothing saved]):::exit
   S -.-> X[Error: text kept, retry]:::error
@@ -30,7 +29,7 @@ flowchart LR
 1. Open New task (Must 7, fast capture).
 2. Type a title. "Add details" optionally opens the estimate, flags, deadline and type.
 3. Press Enter. The task is saved with type "Other" unless another was chosen (Must 6).
-4. An Undo message shows "Added · Undo" (see the README, Undo).
+4. A short status message confirms "Added Buy tickets". It has no Undo (decided): a wrong task is renamed in task details, or deleted like any other task (Delete a task).
 
 One typed line counts as adding the task, within the 3-tap budget (Must 7).
 
@@ -44,8 +43,7 @@ One typed line counts as adding the task, within the 3-tap budget (Must 7).
 
 **Accessibility**
 - Opening New task moves focus to the title field.
-- After saving, focus stays in an empty title field so the next task can be typed. The Undo message is announced as "Task added".
-- Undo is reachable by Tab while the message is shown. Ctrl+Z (Cmd+Z) also removes the task just added, straight from the empty title field, as long as nothing has been typed since the save. Once typing starts, Ctrl+Z undoes the typing instead (see the README, Undo). The message's timer pauses while it has focus.
+- After saving, focus stays in an empty title field so the next task can be typed. The status message is announced as "Buy tickets added". In the title field, Ctrl+Z only undoes typing.
 
 ## Edit task details and urgency (1a)
 
@@ -79,7 +77,7 @@ flowchart LR
    - The type list has "New type…", which creates a type inline (Must 6).
    - From 1b, the estimate field offers "Usually takes you 1.6 h" when there is enough history (see [metrics-and-insights.md](metrics-and-insights.md)).
 3. Each field saves on change.
-4. If the deadline is close, the app suggests "Mark as urgent?" with the reason, for example "Due in 3 days, needs about 2" (Must 4).
+4. If the deadline is close, the app suggests "Mark as urgent?" with the reason, for example "3 days left, today included, and it needs about 6 h of work" (Must 4: 6 h fits in 1 working day, and 3 days left is at most 1 + 2).
 5. Dismissing it is remembered for that task until the deadline changes (Must 4).
 
 **States and errors**
@@ -165,7 +163,7 @@ flowchart LR
 1. Tick "Done". The task leaves the open list (Must 6).
 2. Its blocks are handled as follows (decided):
    - **Future planned blocks** are removed, so the time is free and no reminder fires for finished work. The message reads "Write report done · 1 future block removed · Undo". Removing them is not a postponement.
-   - **Past unconfirmed blocks** stay in To confirm, because the work may have happened then and confirming it keeps estimates accurate. They are not marked "Dropped".
+   - **Past unconfirmed blocks** stay in Check in, because the work may have happened then and confirming it keeps estimates accurate. They are not marked "Task deleted".
    - **Confirmed blocks** are untouched.
 3. Within 7 days, untick it to reopen it (PRD section 3). The removed future blocks whose start has not passed come back. The rest becomes unscheduled time again.
 4. After 7 days the checkbox is locked and labelled "Done, can't be changed".
@@ -177,22 +175,19 @@ flowchart LR
 - The checkbox is a native checkbox labelled with the task title.
 - The change is announced as "Write report done" or "Write report reopened".
 
-## Drop or delete a task (1a)
+## Not now (1a)
 
-- **Goal:** stop working on a task, either keeping it recoverable (drop) or removing it (delete).
-- **Entry:** the task's menu in the list or in task details.
-- **Preconditions:** the task exists.
-- **Success:** the task leaves the open list, and its future blocks are removed.
+- **Goal:** take a planned task off the calendar without giving it up.
+- **Entry:** "Not now" in the task's menu in the list or in task details.
+- **Preconditions:** the task is open and has future planned blocks.
+- **Success:** the future blocks are gone, and the task is back in the open list with its time unscheduled.
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
 flowchart LR
-  A[Task menu]:::step --> B{Drop or delete?}:::decision
-  B -->|drop| P[[Remove future blocks]]:::sys --> T1([Dropped, Undo shown]):::ok
-  B -->|delete| Q[[Remove future blocks]]:::sys --> T2([Deleted, Undo shown]):::ok
-  T1 -->|after Undo closes| RR([In Recently removed for 7 days]):::ok
-  T2 -->|after Undo closes| F([Title removed for good]):::exit
+  A[Task menu]:::step --> N[Not now]:::step --> R[[Remove future blocks]]:::sys --> D([Back in the list, Undo shown]):::ok
   A -->|close menu| E([Nothing changed]):::exit
+  R -.-> X[Error: not saved, retry]:::error
   classDef step fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
   classDef sys fill:#E6F1FB,stroke:#185FA5,color:#042C53
   classDef ok fill:#E1F5EE,stroke:#0F6E56,color:#04342C
@@ -203,37 +198,31 @@ flowchart LR
 ```
 
 **Steps**
-1. Open the task menu and choose "Drop" or "Delete". The menu explains the difference: "Drop: keep it for 7 days" and "Delete: remove it for good" (Must 6).
-2. Its future planned blocks are removed. Confirmed blocks stay. Past unconfirmed blocks become "Dropped" and stop asking for confirmation (Must 6).
-3. An Undo message shows "Dropped" or "Deleted" (PRD U3, see the README, Undo).
-4. After the Undo message closes:
-   - a dropped task can still be restored from Recently removed for 7 days;
-   - a deleted task cannot be restored, and its title is removed (Musts 6 and 14).
-
-Both count as not done in the metrics (Must 6).
+1. Choose "Not now" (decided: replaces Drop).
+2. The task's future planned blocks are removed. This is not a postponement, because blocks that have not started can be moved freely (PRD glossary). Past unconfirmed blocks stay in Check in, and confirmed blocks are untouched.
+3. The task stays open, with its time unscheduled, so the next "Plan my tasks" can place it again.
+4. An Undo message shows "Tax return: not now · 2 blocks removed · Undo" (README, Undo).
 
 **Exits**
-- Closing the menu changes nothing. Undo in the Undo message restores the task and its removed future blocks.
+- Closing the menu changes nothing. Undo brings the removed blocks back.
 
 **Accessibility**
-- Neither action uses a confirmation dialog (PRD U3). The menu wording and the Undo message are the safety net.
-- After removal, focus moves to the next task in the list.
+- The menu item is named "Not now, Tax return". After it, focus stays on the task row, and "2 blocks removed" is announced.
 
-## Recently removed (1a)
+## Delete a task (1a)
 
-- **Goal:** bring back a dropped task or a deleted block.
-- **Entry:** the task list's "Recently removed" link, or the link in a "Dropped" Undo message.
-- **Preconditions:** something was dropped or deleted in the last 7 days.
-- **Success:** the item is back where it was.
+- **Goal:** remove a task for good.
+- **Entry:** "Delete" in the task's menu in the list or in task details.
+- **Preconditions:** the task exists.
+- **Success:** the task leaves every list, and its future blocks are removed.
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
 flowchart LR
-  A[Recently removed]:::step --> B[Restore item]:::step --> R[[Restore task or block]]:::sys --> D([Back in place]):::ok
-  A -.- AE[Empty: nothing removed]:::state
-  R -.- X[Warning: may be affected]:::state
-  R -.-> RX[Error: not restored, retry]:::error
-  A -->|back| E([Back to tasks]):::exit
+  A[Task menu]:::step --> B[Delete]:::step --> Q[[Remove future blocks]]:::sys --> T([Deleted, Undo shown]):::ok
+  T -->|after Undo closes| F([Title erased for good]):::exit
+  A -->|close menu| E([Nothing changed]):::exit
+  Q -.-> X[Error: not deleted, retry]:::error
   classDef step fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
   classDef sys fill:#E6F1FB,stroke:#185FA5,color:#042C53
   classDef ok fill:#E1F5EE,stroke:#0F6E56,color:#04342C
@@ -244,21 +233,17 @@ flowchart LR
 ```
 
 **Steps**
-1. The list shows dropped tasks and deleted blocks, newest first, each with "Removed 2 days ago, restorable until 18 Nov". Deleted tasks are never listed (Must 6).
-2. Restore an item.
-3. A restored dropped task gets back its removed blocks whose start has not passed. The rest becomes unscheduled time again (Must 6).
-
-**States and errors**
-- **Empty:** "Nothing removed in the last 7 days."
-- **Restored block now overlaps:** it is restored anyway and flagged "May be affected". This is a warning, not a failure (Must 1).
-- **Restore failed:** "Couldn't restore. Retry." The item stays in the list.
+1. Choose "Delete" (Must 6). Delete is the only way to remove a task (decided).
+2. Its future planned blocks are removed. Confirmed blocks stay. Past unconfirmed blocks become "Task deleted": they stop asking for confirmation and each counts as one postponement (Must 6).
+3. An Undo message shows "Tax return deleted · Undo" (PRD U3, README, Undo).
+4. When the message closes, the task can't be brought back, and its title, notes and steps are erased (Musts 6 and 14). It stays in the metrics as a record without text and counts as not done.
 
 **Exits**
-- Back to the task list.
+- Closing the menu changes nothing. Undo while the message is shown restores the task and its removed blocks.
 
 **Accessibility**
-- The list is a plain list with one Restore button per row, labelled with the item's name.
-- After a restore, focus moves to the next row, and "Restored" is announced.
+- No confirmation dialog (PRD U3). The Undo message is the safety net.
+- After deleting, focus moves to the next task in the list.
 
 ## Restore an earlier version (1a)
 
@@ -303,7 +288,7 @@ The frame, navigation and the Undo message are in the [README](README.md#screens
 
 ### Tasks (1a)
 
-- **Flows:** New task, Mark a task done or not done, Drop or delete a task, Plan with the suggester (entry).
+- **Flows:** New task, Mark a task done or not done, Not now, Delete a task, Plan with the suggester (entry).
 - **Phone:**
 
 ```
@@ -311,12 +296,11 @@ The frame, navigation and the Undo message are in the [README](README.md#screens
 │ Tasks          ① Plan my tasks   │ banner · h1 "Tasks"
 ├──────────────────────────────────┤ main
 │ ② [ New task: type and press Enter ]│ always visible on this screen
-│ ③ Open ④ Done   ⑤ Needs a decision 1│ filter tabs
+│ ③ Open ④ Done ⑤ Needs a decision 1│ filter tabs; ⑤ from 1b
 │ ⑥ ☐ Write report  2 h · Urgent ⋯ │
 │ ⑦ ☐ Call bank     30 min       ⋯ │
 │ ⑧ ☐ Tax return    Due Fri      ⋯ │
-│ ⑨ Recently removed               │
-│ ┌ Added · Undo ────────────────┐ │ Undo message
+│ ┌ Added Buy tickets ───────────┐ │ status message, no Undo
 ├──────────────────────────────────┤
 │ tab bar                          │
 └──────────────────────────────────┘
@@ -327,11 +311,10 @@ The frame, navigation and the Undo message are in the [README](README.md#screens
 | # | Element | HTML / role | Accessible name | Req |
 |---|---|---|---|---|
 | ② | New task field | input type text with label | "New task" | Must 7 |
-| ③–⑤ | Filters | tab list | "Open, 12", "Done", "Needs a decision, 1" | |
-| ⑥–⑧ | Task row | checkbox + link + menu button | checkbox "Write report, done"; link "Write report, 2 hours, urgent"; menu "More actions for Write report" | Must 6 |
-| ⑨ | Recently removed | link | "Recently removed" | Must 6 |
+| ③–⑤ | Filters | tab list | "Open, 12", "Done", "Needs a decision, 1" (this tab appears in 1b, with recurring tasks) | Must 18 |
+| ⑥–⑧ | Task row | checkbox + link + menu button | checkbox "Write report, done"; link "Write report, 2 hours, urgent"; menu "More actions, Write report" with Place…, Mark done, Not now, Delete | Must 6, 16 |
 
-- **Screen reader:** the list announces its count ("12 open tasks"). Each row reads title, estimate, flags, deadline and "repeats" when it does. After adding a task, focus stays in the New task field and "Task added" is announced.
+- **Screen reader:** the list announces its count ("12 open tasks"). Each row reads title, estimate, flags, deadline and "repeats" when it does. After adding a task, focus stays in the New task field and "Buy tickets added" is announced.
 - **States:**
   - Empty: "No tasks yet. Add one with New task."
   - Loading: five skeleton rows.
@@ -340,23 +323,25 @@ The frame, navigation and the Undo message are in the [README](README.md#screens
 
 ### Task details (1a)
 
-- **Flows:** Edit task details and urgency, Mark a task done or not done, Drop or delete a task, Restore an earlier version; Checklists and Repeat (1b) appear here too.
+- **Flows:** Edit task details and urgency, Mark a task done or not done, Not now, Delete a task, Restore an earlier version, Place, move or resize a block ("Place…"); Checklists and Repeat (1b) appear here too.
 - **Phone:** its own screen. **Tablet and desktop:** the right-hand side of Tasks.
 
 ```
 ┌──────────────────────────────────┐
-│ ② ‹ Back   Write report      ③ ⋯ │ h1 "Write report"
+│ ① ‹ Back   Write report      ② ⋯ │ h1 "Write report"
 ├──────────────────────────────────┤
-│ ④ Title     [ Write report     ] │
-│ ⑤ Estimate  [ 2 h ]              │
-│   Usually takes you 1.6 h ⑥ Use  │ 1b
-│ ⑦ ☐ Urgent  ⑧ ☑ Important        │
-│ ⑨ Deadline  [ Fri 20 Nov ]       │
-│ ┌ Due in 3 days, needs about 2.  │ urgency suggestion
-│ │ ⑩ Mark as urgent ⑪ Dismiss    │
-│ ⑫ Type      [ Work ▾ ]           │ includes "New type…"
-│ Steps 2 of 3                  ⑬ ›│ 1b, see checklists.md
-│ Blocks: Mon 09–10 ✓, Thu 10–11 ⑭ ›│
+│ ③ Title     [ Write report     ] │
+│ ④ Estimate  [ 6 h ]              │
+│   Usually takes you 5.5 h ⑤ Use  │ 1b
+│ ⑥ ☐ Urgent  ⑦ ☑ Important        │
+│ ⑧ Deadline  [ Wed 18 Nov ]       │
+│ ┌ 3 days left, today included,   │ urgency suggestion
+│ │ and it needs about 6 h of work.│
+│ │ ⑨ Mark as urgent ⑩ Dismiss    │
+│ ⑪ Type      [ Work ▾ ]           │ includes "New type…"
+│ ⑫ Place…                         │ create a block without dragging
+│ Blocks: Mon 09–10 ✓  ⑬ ›         │ list of this task's blocks
+│ Steps 2 of 3                  ⑭ ›│ 1b, see checklists.md
 │ ⑮ Repeat                      ›  │ 1b
 │ ⑯ Mark done                      │
 └──────────────────────────────────┘
@@ -364,15 +349,18 @@ The frame, navigation and the Undo message are in the [README](README.md#screens
 
 | # | Element | HTML / role | Accessible name | Req |
 |---|---|---|---|---|
-| ③ | More actions | menu button | "More actions": Drop, Delete, Earlier versions | Must 6, 12 |
-| ⑤ | Estimate | input with unit | "Estimate, hours and minutes" | Must 6 |
-| ⑥ | Use suggestion | button | "Use 1.6 hours" | Must 10 |
-| ⑦⑧ | Flags | checkboxes | "Urgent", "Important" | Must 4 |
-| ⑨ | Deadline | input type date | "Deadline" | Must 4, U4 |
-| ⑩⑪ | Urgency suggestion | two buttons in a group | "Mark as urgent", "Dismiss suggestion" | Must 4 |
-| ⑫ | Type | select | "Type" | Must 6 |
-| ⑯ | Mark done | button | "Mark Write report done" | Must 6 |
+| ② | More actions | menu button | "More actions": Not now, Delete, Earlier versions | Must 6, 12 |
+| ④ | Estimate | input with unit | "Estimate, hours and minutes" | Must 6 |
+| ⑤ | Use suggestion | button | "Use, 5.5 hours" | Must 10 |
+| ⑥⑦ | Flags | checkboxes | "Urgent", "Important" | Must 4 |
+| ⑧ | Deadline | input type date | "Deadline" | Must 4, U4 |
+| ⑨⑩ | Urgency suggestion | two buttons in a group | "Mark as urgent", "Dismiss" | Must 4 |
+| ⑪ | Type | select | "Type" | Must 6 |
+| ⑫ | Place… | button | "Place…, Write report" | Must 1, 16 |
+| ⑯ | Mark done | button | "Mark done, Write report" | Must 6 |
 
+- **Place…:** opens Edit block for a new block of this task: date (today), start (the next quarter hour), end (start plus the unscheduled time or the default duration), then Save with the usual overlap check.
+- **Mark done states:** open: "Mark done". Done, within 7 days: the button reads "Done ✓ · Mark not done". Done for 7 days or more: the text "Done, can't be changed" and no button.
 - **Screen reader:** the urgency suggestion is a group labelled with its sentence, announced politely when it appears; it never takes focus. Each field saves on change and announces "Saved" only if the save took longer than a second.
 - **States:**
   - Invalid value: an inline error under the field, with the entry kept (PRD A5).
@@ -400,24 +388,6 @@ The frame, navigation and the Undo message are in the [README](README.md#screens
 - **Elements:** each row's menu has Rename, Time window (work, personal, any) and Delete, each a labelled menu item (not icon-only). The inline confirm row's "No" is focused first.
 - **Screen reader:** rows read "Admin, uses work time". Deleting announces "Admin deleted, 12 tasks moved to Other".
 - **States:** duplicate name shows "A type with this name already exists." inline.
-
-### Recently removed (1a)
-
-- **Flows:** Recently removed.
-
-```
-┌──────────────────────────────────┐
-│ ‹ Back   Recently removed        │ h1
-│ Call bank · Dropped 2 days ago   │
-│ Restorable until 18 Nov  ① Restore│
-│ Block Mon 10:00 · Deleted today  │
-│ Restorable until 23 Nov  ② Restore│
-└──────────────────────────────────┘
-```
-
-- **Elements:** one Restore button per row, named "Restore Call bank".
-- **Screen reader:** after a restore, "Call bank restored" and focus moves to the next row.
-- **States:** empty: "Nothing removed in the last 7 days." Error: "Couldn't restore. Retry."
 
 ### Earlier versions (1a)
 

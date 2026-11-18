@@ -30,7 +30,7 @@ flowchart LR
 **Steps**
 1. Open Metrics. Each metric from PRD section 3 shows this week's value and a trend over the past weeks (Must 15).
 2. The first 4 weeks are labelled "Baseline". Weeks that ended under 14 days ago are labelled "Provisional" (Must 15).
-3. Pick a week or a metric to see the detail.
+3. Pick a week to see its numbers, or a metric tile to see its detail: its trend over the tracked weeks, its definition in one sentence, and its companion numbers (below).
 
 **States and errors**
 - **Empty:** "Numbers start on the first Monday after you've used the app on 5 of 7 days. So far: 3 of 7." (PRD section 3).
@@ -75,7 +75,7 @@ flowchart LR
 ## Summaries (Should)
 
 - **Goal:** get a short picture of a day, week, month or year.
-- **Entry:** the "Summary" button in the day, week, month and year views, or asking the assistant ("how was my week?").
+- **Entry:** the "Summary" button on Metrics (for the selected week, month or year), or asking the assistant ("how was my week?").
 - **Preconditions:** some confirmed blocks in the period.
 - **Success:** the summary is read.
 
@@ -148,7 +148,7 @@ flowchart LR
 │ ┌ Completion   ┐┌ Confirmation ┐ │ tiles, 2 per row
 │ │ 72% ▲ from 65││ 81%          │ │
 │ ├ Postponed    ┤├ Estimate err.┤ │
-│ │ 4 · 2 missed ││ 22% median   │ │
+│ │ 11% · 2 missed││ 22% median  │ │
 │ ├ Early moves  ┤├ Scheduled    ┤ │
 │ ├ Planning time┤├ Load         ┤ │
 │ ④ Trend: Completion ▾            │
@@ -161,6 +161,21 @@ flowchart LR
 ```
 
 - **Tablet and desktop:** eight tiles in one or two rows of four, then the trend chart.
+- **Each tile shows** (PRD section 3, Must 15):
+
+| Tile | Main number | Companion numbers |
+|---|---|---|
+| Completion | completion rate | change from last week |
+| Confirmation | confirmation rate | unconfirmed share |
+| Postponed | postponement rate | postponements, missed blocks |
+| Estimate error | median error | signed overrun, share of "as planned", planned-hours trend |
+| Early moves | early-move rate | number of moves |
+| Scheduled share | scheduled share | tasks created |
+| Planning time | minutes a day | active days this week |
+| Load | planned hours as a share of template time | hours outside allowed time, in buffers or over hard events |
+
+- **Metric detail:** choosing a tile shows its trend chart and table, a one-sentence definition with a link to "How this is counted", and its companion numbers for each week.
+- **A day of use** (empty state): a day with at least one planning session, meaning active editing as defined for planning time (PRD section 3).
 - **Elements:** each tile is a button that selects its metric for the trend, named "Completion rate 72 percent, up from 65, show trend". ⑤ toggles a table with the same numbers. Baseline and Provisional are text labels.
 - **Screen reader:** the chart has a text summary as its accessible name ("Completion rate over 8 weeks, from 58 to 72 percent"); the table is the full alternative (PRD A2).
 - **States:**

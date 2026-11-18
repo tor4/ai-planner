@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: multi-area-bullet-body
+expected_outcome: |
+  One proposed commit for a single change that touches the PRD and the architecture (Drop replaced by "Not now"). The message has an imperative subject and a bullet-point body grouped by area (PRD and Architecture), one change per bullet, lines within 72 characters, no attribution trailers. The full message is shown, the response asks about committing on main or a branch, and no commit is made.
+context:
+  scaffold_script: setup-repo.sh

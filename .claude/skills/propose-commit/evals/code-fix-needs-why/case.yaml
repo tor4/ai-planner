@@ -1,6 +1,6 @@
 schema_version: "1.1"
 name: code-fix-needs-why
 expected_outcome: |
-  A subject line plus a short body that explains the reason (a block's end time was wrong across a DST change because duration was added to a naive local time), a question about branching since it is on main, and no commit made.
+  A subject line plus a short body of bullet points that says what changed and, in a bullet, the reason (a block's end time was wrong across a DST change because duration was added to a naive local time), a question about branching since it is on main, and no commit made.
 context:
   scaffold_script: setup-repo.sh

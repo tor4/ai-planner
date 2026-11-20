@@ -1,6 +1,6 @@
 # Availability
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Edit the weekly template (1a)
 
@@ -29,7 +29,7 @@ flowchart LR
 1. Pick a weekday.
 2. Add or change ranges of five kinds: work, focus (inside work), personal, sleep and meal (Must 5).
 3. Optionally copy the day's ranges to other days.
-4. Each change saves. Existing blocks are never moved. Blocks that now sit outside their task type's time are counted in the load guardrail (PRD section 3).
+4. Each change saves. Existing blocks are never moved. Blocks that now sit outside their task type's time are counted in the load guardrail (spec section 3).
 
 **States and errors**
 - **Overlapping ranges:** "Work 09–17 overlaps Meal 12–13. Meals can sit inside work; other kinds can't overlap." (The exact rules for each kind are an open data-model detail.)

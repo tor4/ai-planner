@@ -1,6 +1,6 @@
 # First run
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Sign in (1a)
 
@@ -81,7 +81,7 @@ flowchart LR
 2. The app imports the events (Must 3).
 3. Confirm the home time zone. It is prefilled from the device (Must 12).
 4. Accept the starter template with one tap, or edit it first (Must 5). The starter has Mon–Fri 09–17 work, 09–11 focus, evenings 18–21 personal, meals and sleep (decided).
-5. iPhone and iPad only: if notifications need a Home Screen install, an "Add to Home Screen" step with instructions appears here (PRD section 8, plan B).
+5. iPhone and iPad only: if notifications need a Home Screen install, an "Add to Home Screen" step with instructions appears here (spec section 8, plan B).
 
 **States and errors**
 - **Loading:** "Importing, n of m calendars."
@@ -89,7 +89,7 @@ flowchart LR
 - **Empty day view:** "Your day is empty. Add your first task."
 
 **Exits**
-- The template step cannot be skipped, because without a template there is no available time (PRD glossary). Leaving the app here resumes setup at the same step next time.
+- The template step cannot be skipped, because without a template there is no available time (spec glossary). Leaving the app here resumes setup at the same step next time.
 
 **Accessibility**
 - Setup is a sequence of steps with "Step 2 of 3" in the heading. The total is counted for the device: 3 steps (calendar, time zone, template), or 4 on iPhone and iPad when the Home Screen step is needed.

@@ -1,18 +1,18 @@
 ---
-title: "AI Planner design 1: user flows"
+title: "AI Planner: user flows"
 owner: Nataly
 version: 0.4
 date: 2026-11-18
 status: approved
 approved_on: 2026-11-18
-related: [PRD v0.4](../../PRD.md), [Architecture v0.6](../../architecture.md)
+related: [Spec v0.4](../../spec.md), [Architecture v0.6](../../architecture.md)
 ---
 
-# Design 1: User flows
+# User flows
 
-How people move through the app: each flow's goal, entry points, steps, states, exits and accessibility path. Requirement references (Must 2, A4 and so on) point to the [PRD](../../PRD.md). Terms follow the PRD glossary.
+How people move through the app: each flow's goal, entry points, steps, states, exits and accessibility path. Requirement references (Must 2, A4 and so on) point to the [spec](../../spec.md). Terms follow the spec glossary.
 
-The user in every flow is the signed-in owner, the only user in the first version (PRD section 2), unless a flow says otherwise.
+The user in every flow is the signed-in owner, the only user in the first version (spec section 2), unless a flow says otherwise.
 
 ## Files
 
@@ -83,13 +83,13 @@ flowchart LR
 - **Empty or loading state:** purple, dashed border. It is attached to its step by a dotted line without an arrow.
 - **Error:** coral, thick border. It is reached by a dashed arrow.
 
-Each diagram is followed by its text version. Diagram colors are placeholders until the design system tokens exist (design step 4).
+Each diagram is followed by its text version. Diagram colors are placeholders until the design system tokens exist.
 
 ## Cross-cutting states
 
 These apply to every flow and are not repeated in each one.
 
-- **Loading:** skeletons in the shape of the content. When the first request after idle takes over 1 second, the screen adds "Waking up the server…" (up to 3 s is accepted, PRD P3).
+- **Loading:** skeletons in the shape of the content. When the first request after idle takes over 1 second, the screen adds "Waking up the server…" (up to 3 s is accepted, spec P3).
 - **No connection (1a, decided):** whatever is on screen stays visible. A banner says "No connection. Changes can't be saved right now." Every action that changes data is disabled, not only save buttons: New task, dragging and the keyboard move mode, time fields, checkboxes, the four confirm options, Undo, restore and settings. A block cannot be picked up for dragging, and trying it announces "Can't change while offline". Typed text stays in its field. When the connection returns, the banner goes and the data refreshes. A reload while offline shows the browser's own offline page.
 - **Offline (1b):** the saved read-only copy replaces the browser's offline page (Must 12).
 - **Signed out mid-task (1a, decided):** a dialog says "Signed out. Sign in to continue". Google sign-in opens in a pop-up, the screen and typed text stay underneath, and the user saves again afterwards.
@@ -104,12 +104,12 @@ These apply to every flow and are not repeated in each one.
   7. Turn on reminders card.
 - **Errors:** every error names what failed, keeps the user's input and offers one primary action. A secondary action is allowed when it is clearly less prominent.
 - **Undo (decided):** these actions show an Undo message:
-  - deleting a block or a task, and "Not now" (PRD U3);
+  - deleting a block or a task, and "Not now" (spec U3);
   - ending a series, whose future occurrences are tasks ("Gym ended · 4 occurrences removed · Undo");
   - marking a task done, which also removes its future blocks ("done · 1 future block removed · Undo"). Unticking within 7 days remains the later way back.
 
   How the message behaves:
-  - **Timer:** 15 seconds (PRD U3 requires at least 10). It pauses while the message has keyboard focus or the pointer is over it.
+  - **Timer:** 15 seconds (spec U3 requires at least 10). It pauses while the message has keyboard focus or the pointer is over it.
   - **Shortcut:** while the message is shown, Ctrl+Z (Cmd+Z on Mac) undoes the most recent action in it, and pressing it again undoes the one before. Which undo runs depends on what there is to undo (decided):
     - **Outside a text field:** Ctrl+Z undoes the latest app action.
     - **In a text field with typing to undo:** Ctrl+Z undoes the typing, as in any text field.
@@ -122,7 +122,7 @@ These apply to every flow and are not repeated in each one.
   - **Server:** the undo deadline for a deleted task is extended while the message stays open, up to the 10-minute cap (architecture 6.4 needs this change).
 - **Edits from two devices:** the later edit wins without a prompt (Must 12). The one exception is confirming a block that was moved on another device (decided, see Confirm a block).
 
-**Accessibility, all flows (Must 16, PRD 6.1):**
+**Accessibility, all flows (Must 16, spec 6.1):**
 - Every screen has a "Skip to content" link, one top-level heading and landmarks (banner, navigation, main).
 - Undo messages and banners are announced politely by screen readers. Errors that block an action are announced assertively.
 - Opening a dialog or panel moves focus into it, and closing it returns focus to the control that opened it.
@@ -194,9 +194,9 @@ Desktop, Metrics:
 | View options | Bottom sheet | Pop-over | Pop-over |
 | Settings | "More" tab, then a list | Account menu, then Settings, with a sidebar | Same as tablet |
 
-All layouts work from 320 px wide and at 200% zoom (PRD A3, U2). Tablet is the desktop layout with the panel over the grid, so it is described only where it differs.
+All layouts work from 320 px wide and at 200% zoom (spec A3, U2). Tablet is the desktop layout with the panel over the grid, so it is described only where it differs.
 
-**Skip link.** Every screen starts with a "Skip to content" link, hidden until it has focus (PRD A1). It is the same everywhere, so the layouts leave it out and number the focus order from the first element after it.
+**Skip link.** Every screen starts with a "Skip to content" link, hidden until it has focus (spec A1). It is the same everywhere, so the layouts leave it out and number the focus order from the first element after it.
 
 ### Phone frame
 
@@ -258,7 +258,7 @@ All layouts work from 320 px wide and at 200% zoom (PRD A3, U2). Tablet is the d
 
 - **Screen reader:** opens as a dialog named "View options", with focus on the first select. Each change applies at once and announces nothing extra. Esc closes it and returns focus to the button.
 - **States:** a failed save keeps the change on this device and shows "Couldn't save your view options. Retry."
-- Choices are saved to the account, so they follow the user across devices. Start of week is not offered, because weeks start on Monday (PRD section 3).
+- Choices are saved to the account, so they follow the user across devices. Start of week is not offered, because weeks start on Monday (spec section 3).
 
 ### Block kinds
 
@@ -301,7 +301,7 @@ Block text is at least 14 px. Short blocks cut the title with an ellipsis rather
 └──────────────────────────────────┘
 ```
 
-- **Elements:** each row is a link with its visible name. Rows are at least 44 px tall (PRD A4).
+- **Elements:** each row is a link with its visible name. Rows are at least 44 px tall (spec A4).
 - **Screen reader:** a list of 10 links under the heading "More".
 - **States:** a row shows a short status where useful, such as "Calendar · Disconnected", as text.
 
@@ -320,9 +320,9 @@ Block text is at least 14 px. Short blocks cut the title with an ellipsis rather
 | A detailed placeholder stays as a linked summary | month-and-year.md |
 | A planning slot is a normal block of a "Plan: …" task | month-and-year.md |
 | "Plan: …" tasks count in every metric like any task | month-and-year.md |
-| The PRD is updated at the end of each design step | This file |
+| The spec is updated when each design document is approved | This file |
 | "Other" cannot be deleted | tasks.md |
-| Deleting a task type and deleting a placeholder ask inline, with no Undo, because PRD U3 limits Undo to blocks and tasks | tasks.md, month-and-year.md |
+| Deleting a task type and deleting a placeholder ask inline, with no Undo, because spec U3 limits Undo to blocks and tasks | tasks.md, month-and-year.md |
 | Ending a series works like deleting tasks: no question, and a grouped Undo restores the series and its future occurrences. There is only "End series"; no "Delete series" | recurring-tasks.md |
 | "Day off" clears work and focus time only | availability.md |
 | Reminders permission is asked after the first block is saved. "Not now" waits 7 days | reminders-and-confirmation.md |
@@ -334,15 +334,15 @@ Block text is at least 14 px. Short blocks cut the title with an ellipsis rather
 | The overlap dialog starts with focus on "Don't place" | planning.md |
 | Confirming an old block of a done task never re-plans it: "didn't do it" offers no new slot, and "partly done" asks no time left | reminders-and-confirmation.md |
 | Confirmed blocks can't be deleted. A wrong confirmation is edited instead (narrows Must 6) | planning.md |
-| The add button is named "New task". "Fast capture" stays only as the PRD requirement name | tasks.md, Screens |
+| The add button is named "New task". "Fast capture" stays only as the spec requirement name | tasks.md, Screens |
 | Phone uses bottom tabs (Plan, Tasks, Check in, Metrics, More). Tablet and desktop use a top bar plus a labelled rail for side panels | Screens |
 | The planner defaults to Day on phone, 3 days on tablet and Week on desktop | Screens |
 | View options: days in view, time format, date format, all-day busy events, saved to the account. Start of week is not offered | Screens |
-| Design defaults not in the PRD: an estimate of at least 15 minutes (the shortest block), recovery buffer 0–60 minutes, long meeting 30–240 minutes, morning 06–12, afternoon 12–17 and evening 17–22 | availability.md, tasks.md, recurring-tasks.md |
+| Design defaults not in the spec: an estimate of at least 15 minutes (the shortest block), recovery buffer 0–60 minutes, long meeting 30–240 minutes, morning 06–12, afternoon 12–17 and evening 17–22 | availability.md, tasks.md, recurring-tasks.md |
 | The day view follows the device zone; the toolbar shows a zone only in the mismatch notice | planning.md |
 | Confirmed blocks open Edit a confirmation; their time can't be edited | planning.md, reminders-and-confirmation.md |
 | Editing a confirmation applies as if the new outcome had been chosen first: it can mark the task done, reopen a task it auto-marked done, set or clear the time left, and move the block to a new actual start | reminders-and-confirmation.md |
-| The blocks-to-confirm list and its button are named "Check in" (tab, rail, heading, block menu). "Confirm" and "confirmation rate" stay as the PRD's internal terms | Screens, reminders-and-confirmation.md |
+| The blocks-to-confirm list and its button are named "Check in" (tab, rail, heading, block menu). "Confirm" and "confirmation rate" stay as the spec's internal terms | Screens, reminders-and-confirmation.md |
 | The rail, with Check in and its count, is on every tablet and desktop screen | Screens |
 | Delete is the only way to remove a task. "Not now" replaces Drop: it removes the future blocks and keeps the task open. There is no Recently removed; deleted tasks and blocks come back only through Undo. The block state "Dropped" is renamed "Task deleted" | tasks.md, planning.md |
 | Adding a task with New task has no Undo. A wrong task is renamed or deleted like any other task, and counts as created | tasks.md |
@@ -350,12 +350,12 @@ Block text is at least 14 px. Short blocks cut the title with an ellipsis rather
 | Marking a task done removes its future blocks (restored if unticked within 7 days). Past unconfirmed blocks stay in Check in | tasks.md |
 | Undo message: shown for block delete, task delete, Not now, mark done and series end. It pauses on focus or hover, has Ctrl+Z (Cmd+Z) as its shortcut, which yields to typing undo in text fields, and groups actions into one ordered message. "Keep Undo messages until I close them", in Settings, then Accessibility, removes the timer, with a 10-minute cap | Cross-cutting states, account.md |
 
-**When the PRD and architecture are updated.** This design step ends when this document is approved. The PRD is then updated to v0.3 with every decision above, and `docs/architecture.md` gets the matching changes:
+**When the spec and architecture are updated.** This design work ends when this document is approved. The spec is then updated to v0.3 with every decision above, and `docs/architecture.md` gets the matching changes:
 - **6.4:** the undo deadline for a deleted task is extended while the Undo message stays open, up to 10 minutes. Ending a series can be undone.
 - **6.4 and 7.4:** marking a task done removes its future blocks, and unticking within 7 days restores the ones whose start has not passed.
 - **7.5:** confirming an old block of a done task offers no new slot, and "partly done" records no remainder.
 - **8:** routes for undoing a series end and extending an undo, and no delete route for confirmed blocks.
-PRD v0.3 and architecture v0.5 carry those changes. Changes from version 0.4 of this document go into the PRD and architecture when 0.4 is approved.
+Spec v0.3 and architecture v0.5 carry those changes. Changes from version 0.4 of this document go into the spec and architecture when 0.4 is approved.
 
 ## Changes
 
@@ -366,7 +366,7 @@ PRD v0.3 and architecture v0.5 carry those changes. Changes from version 0.4 of 
   - the Check in summary stays until the user moves on, and auto-done uses the Undo message;
   - one ordered Undo message for all actions, and no Undo after adding a task;
   - Drop and Recently removed removed: Delete is the only removal, and "Not now" unplans a task; a banner order; how "may be affected" clears;
-  - the day view follows the device zone; metric tiles list every PRD number;
+  - the day view follows the device zone; metric tiles list every spec number;
   - smaller fixes to notifications, overload timing, No free slot, delete all and the assistant's kill switch.
 - **0.3 (2026-11-18, approved):** screen structures and main screen images.
 - **0.2 (2026-11-16, approved):** flows split into feature files after three reviews.
@@ -375,20 +375,20 @@ PRD v0.3 and architecture v0.5 carry those changes. Changes from version 0.4 of 
 
 - **Email reminder fallback (Should):** it needs an email sender, which is not chosen yet (architecture section 17). Its flow is written when the sender is chosen.
 - **Could items** (full plan vs. actual view, mobile quick-confirm widgets, learned template adjustments): not part of the first version. They get flows when they are scheduled.
-- **Later items** (PRD section 5): out of scope for the first version.
+- **Later items** (spec section 5): out of scope for the first version.
 
 ## Gaps for later steps
 
 Each gap is owned by Nataly and due before the step named.
 
-- **Data model (step 5):**
+- **Data model:**
   - what deleting a past unconfirmed block does to the confirmation rate;
   - the link from a task to its placeholder;
   - the task type of a "Plan: …" task.
-- **Design system (step 4):** colors, type and spacing tokens replace the placeholder colors in the pictures. Owner: Nataly, before the build starts.
-- **UX copy (before 1a build):** final wording of every message quoted here, kept in message files for translation (PRD U6), including the typed confirmation word for delete all.
+- **Design system:** colors, type and spacing tokens replace the placeholder colors in the pictures. Owner: Nataly, before the build starts.
+- **UX copy (before 1a build):** final wording of every message quoted here, kept in message files for translation (spec U6), including the typed confirmation word for delete all.
 - **Build check:** whether Google sign-in works in a pop-up in our setup. The full-page fallback above covers the case where it does not.
-- **Open in the PRD (section 10):**
+- **Open in the spec (section 10):**
   - notification de-duplication across devices;
   - how the template behaves when it conflicts with calendar events;
   - limits on tasks, blocks and history;

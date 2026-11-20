@@ -1,6 +1,6 @@
 # Month and year
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Add a placeholder and a planning slot (Should)
 
@@ -27,7 +27,7 @@ flowchart LR
 ```
 
 **Steps**
-1. Enter a title and a rough period, such as "mid-July" or "July 10–24" (PRD section 4, placeholder).
+1. Enter a title and a rough period, such as "mid-July" or "July 10–24" (spec section 4, placeholder).
 2. Optionally book time to plan it. This creates a task "Plan: Vacation" with one block at the chosen time (decided: a planning slot is a normal block). The time is picked with manual placement or the suggester (see [planning.md](planning.md)).
 3. The "Plan: …" task counts in the metrics like any task: completion rate, confirmation rate, scheduled share and load guardrail (decided).
 
@@ -105,7 +105,7 @@ flowchart LR
 
 **Steps**
 1. Edit the title or the rough dates. Linked tasks and the planning block do not move.
-2. Delete asks inline "Delete Vacation? Its 3 tasks and planning block stay as ordinary tasks." If confirmed, the placeholder is removed and its tasks are unlinked. Nothing else changes. There is no Undo, because PRD U3 limits Undo to blocks and tasks.
+2. Delete asks inline "Delete Vacation? Its 3 tasks and planning block stay as ordinary tasks." If confirmed, the placeholder is removed and its tasks are unlinked. Nothing else changes. There is no Undo, because spec U3 limits Undo to blocks and tasks.
 
 **States and errors**
 - **Save failed:** "Couldn't save. Retry."

@@ -1,6 +1,6 @@
 # Tasks
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## New task (1a)
 
@@ -81,13 +81,13 @@ flowchart LR
 5. Dismissing it is remembered for that task until the deadline changes (Must 4).
 
 **States and errors**
-- **Invalid value:** the field is named and a fix is suggested, for example "Estimate must be at least 15 minutes." The entered value stays (PRD A5).
+- **Invalid value:** the field is named and a fix is suggested, for example "Estimate must be at least 15 minutes." The entered value stays (spec A5).
 
 **Exits**
 - Back returns to where the task was opened. Saved fields stay saved.
 
 **Accessibility**
-- Fields use native inputs for dates and numbers (PRD U4).
+- Fields use native inputs for dates and numbers (spec U4).
 - The urgency suggestion is announced as a status, and its two buttons are reachable by Tab.
 - The suggestion never takes focus by itself.
 
@@ -122,7 +122,7 @@ flowchart LR
 1. The list starts with Work, Personal, Admin and Other (Must 6).
 2. Add or rename a type.
 3. Set a type's time window: work time, personal time or any. This decides where the suggester can place its tasks (Must 6).
-4. Delete a type. An inline row asks "Delete Admin? Its 12 tasks move to Other." If confirmed, its tasks and history move to "Other", and the metrics recompute (Must 6). There is no Undo, because PRD U3 limits Undo to blocks and tasks. The inline row is the safety net, and it is not a dialog.
+4. Delete a type. An inline row asks "Delete Admin? Its 12 tasks move to Other." If confirmed, its tasks and history move to "Other", and the metrics recompute (Must 6). There is no Undo, because spec U3 limits Undo to blocks and tasks. The inline row is the safety net, and it is not a dialog.
 5. "Other" cannot be deleted, because New task saves to it by default (Must 6).
 
 **States and errors**
@@ -165,7 +165,7 @@ flowchart LR
    - **Future planned blocks** are removed, so the time is free and no reminder fires for finished work. The message reads "Write report done · 1 future block removed · Undo". Removing them is not a postponement.
    - **Past unconfirmed blocks** stay in Check in, because the work may have happened then and confirming it keeps estimates accurate. They are not marked "Task deleted".
    - **Confirmed blocks** are untouched.
-3. Within 7 days, untick it to reopen it (PRD section 3). The removed future blocks whose start has not passed come back. The rest becomes unscheduled time again.
+3. Within 7 days, untick it to reopen it (spec section 3). The removed future blocks whose start has not passed come back. The rest becomes unscheduled time again.
 4. After 7 days the checkbox is locked and labelled "Done, can't be changed".
 
 **States and errors**
@@ -199,7 +199,7 @@ flowchart LR
 
 **Steps**
 1. Choose "Not now" (decided: replaces Drop).
-2. The task's future planned blocks are removed. This is not a postponement, because blocks that have not started can be moved freely (PRD glossary). Past unconfirmed blocks stay in Check in, and confirmed blocks are untouched.
+2. The task's future planned blocks are removed. This is not a postponement, because blocks that have not started can be moved freely (spec glossary). Past unconfirmed blocks stay in Check in, and confirmed blocks are untouched.
 3. The task stays open, with its time unscheduled, so the next "Plan my tasks" can place it again.
 4. An Undo message shows "Tax return: not now · 2 blocks removed · Undo" (README, Undo).
 
@@ -235,14 +235,14 @@ flowchart LR
 **Steps**
 1. Choose "Delete" (Must 6). Delete is the only way to remove a task (decided).
 2. Its future planned blocks are removed. Confirmed blocks stay. Past unconfirmed blocks become "Task deleted": they stop asking for confirmation and each counts as one postponement (Must 6).
-3. An Undo message shows "Tax return deleted · Undo" (PRD U3, README, Undo).
+3. An Undo message shows "Tax return deleted · Undo" (spec U3, README, Undo).
 4. When the message closes, the task can't be brought back, and its title, notes and steps are erased (Musts 6 and 14). It stays in the metrics as a record without text and counts as not done.
 
 **Exits**
 - Closing the menu changes nothing. Undo while the message is shown restores the task and its removed blocks.
 
 **Accessibility**
-- No confirmation dialog (PRD U3). The Undo message is the safety net.
+- No confirmation dialog (spec U3). The Undo message is the safety net.
 - After deleting, focus moves to the next task in the list.
 
 ## Restore an earlier version (1a)
@@ -363,7 +363,7 @@ The frame, navigation and the Undo message are in the [README](README.md#screens
 - **Mark done states:** open: "Mark done". Done, within 7 days: the button reads "Done ✓ · Mark not done". Done for 7 days or more: the text "Done, can't be changed" and no button.
 - **Screen reader:** the urgency suggestion is a group labelled with its sentence, announced politely when it appears; it never takes focus. Each field saves on change and announces "Saved" only if the save took longer than a second.
 - **States:**
-  - Invalid value: an inline error under the field, with the entry kept (PRD A5).
+  - Invalid value: an inline error under the field, with the entry kept (spec A5).
   - Save failed: "Couldn't save. Retry." next to the field.
   - Deleted task while open (another device): "This task was deleted on another device." with a link back to Tasks.
 

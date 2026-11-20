@@ -1,6 +1,6 @@
 # Checklists
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Add and tick steps (1b)
 

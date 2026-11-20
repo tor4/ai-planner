@@ -1,6 +1,6 @@
 # Planning
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Plan with the suggester (1a)
 
@@ -68,7 +68,7 @@ flowchart LR
 - **Preconditions:** the task exists and the block is not confirmed.
 - **Success:** the block is saved at the new time.
 
-Moving a block whose start has passed (in progress, Unconfirmed or Missed) counts as one postponement, unless the user then confirms it happened at the new time with "as planned" or "it took X" (PRD glossary). Before saving, the move says so: "This block's time has passed. Moving it counts as postponed unless you confirm it happened at the new time." Moving a future block never counts. Setting an actual start with "it took X" also moves a block without a postponement (Must 2); that happens in confirmation, not here.
+Moving a block whose start has passed (in progress, Unconfirmed or Missed) counts as one postponement, unless the user then confirms it happened at the new time with "as planned" or "it took X" (spec glossary). Before saving, the move says so: "This block's time has passed. Moving it counts as postponed unless you confirm it happened at the new time." Moving a future block never counts. Setting an actual start with "it took X" also moves a block without a postponement (Must 2); that happens in confirmation, not here.
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
@@ -95,10 +95,10 @@ flowchart LR
    - with the keyboard: choose "Move with keys" in the block menu. Up and Down move it 15 minutes earlier or later. Left and Right move it to the previous or next day at the same time. Shift + Up and Shift + Down shorten or lengthen it by 15 minutes. Enter saves and Esc cancels;
    - with date, start and end fields in Edit block.
 2. If the block overlaps a hard event, another block or a recovery buffer, a warning names what it overlaps and asks "Place anyway?" (Must 1).
-3. The block is saved. Its result shows within 100 ms, before the server answers (PRD P2).
+3. The block is saved. Its result shows within 100 ms, before the server answers (spec P2).
 
 **States and errors**
-- **Save failed:** the block returns to its old time, with "Couldn't save the change. Retry" (PRD P2).
+- **Save failed:** the block returns to its old time, with "Couldn't save the change. Retry" (spec P2).
 - **Invalid time:** under 15 minutes, crossing midnight or in a missing daylight-saving hour gives "Blocks need at least 15 minutes and must end by midnight" or "02:30 doesn't exist on 28 March" (Must 12).
 
 **Exits**
@@ -116,7 +116,7 @@ flowchart LR
 - **Preconditions:** the block is not confirmed.
 - **Success:** the block is removed, and its time becomes unscheduled time on the task.
 
-Confirmed blocks cannot be deleted, on purpose: they record what happened, and estimates and metrics depend on them. A wrong confirmation is corrected with Edit a confirmation instead, within 7 days (see [reminders-and-confirmation.md](reminders-and-confirmation.md)). This narrows Must 6, "a single block can also be deleted", to unconfirmed blocks, and the change goes into PRD v0.3.
+Confirmed blocks cannot be deleted, on purpose: they record what happened, and estimates and metrics depend on them. A wrong confirmation is corrected with Edit a confirmation instead, within 7 days (see [reminders-and-confirmation.md](reminders-and-confirmation.md)). This narrows Must 6, "a single block can also be deleted", to unconfirmed blocks, and the change goes into spec v0.3.
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 16, "rankSpacing": 24, "padding": 6}}}%%
@@ -136,9 +136,9 @@ flowchart LR
 **Steps**
 1. Choose "Delete block" in the block's menu (Must 6).
 2. The block is removed, and its time becomes unscheduled time on the task, so the next suggester run can place it again.
-3. An Undo message shows "Block deleted · Undo" (PRD U3, see the README, Undo). Once it closes, the block can't be restored (decided: no Recently removed).
+3. An Undo message shows "Block deleted · Undo" (spec U3, see the README, Undo). Once it closes, the block can't be restored (decided: no Recently removed).
 
-What deleting a past unconfirmed block does to the confirmation rate is not defined in the PRD. It is listed in the README's gaps for the data-model step.
+What deleting a past unconfirmed block does to the confirmation rate is not defined in the spec. It is listed in the README's gaps for the data-model step.
 
 **States and errors**
 - **Delete failed:** "Couldn't delete the block. Retry."
@@ -174,7 +174,7 @@ flowchart LR
 ```
 
 **Steps**
-1. From Friday noon, the app compares planned block hours with the template's free hours (PRD section 5, Should).
+1. From Friday noon, the app compares planned block hours with the template's free hours (spec section 5, Should).
 2. If the plan is over, a banner states both numbers.
 3. Adjust opens the week view. Dismiss keeps the plan, and the banner does not return that week.
 
@@ -345,7 +345,7 @@ The frame, navigation, View options and block kinds are in the [README](README.m
 | ⑨ | Save | button | "Save" | Must 1 |
 
 - **Screen reader:** "Move with keys" closes the sheet and announces "Moving Write report, Monday 09:00 to 10:00. Up and Down move, Left and Right change the day, Shift resizes, Enter saves, Esc cancels."
-- **States:** invalid values show inline errors under the field (PRD A5). Moving a block whose start has passed shows "This block's time has passed. Moving it counts as postponed unless you confirm it happened at the new time." above Save.
+- **States:** invalid values show inline errors under the field (spec A5). Moving a block whose start has passed shows "This block's time has passed. Moving it counts as postponed unless you confirm it happened at the new time." above Save.
 
 ### Overload banner (Should)
 

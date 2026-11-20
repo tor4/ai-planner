@@ -1,6 +1,6 @@
 # Account
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Sign out (1a)
 
@@ -25,8 +25,8 @@ flowchart LR
 ```
 
 **Steps**
-1. "Sign out" ends this session. "Sign out everywhere" ends every session (PRD S3).
-2. Both are written to the audit log (PRD S7). Other devices show the signed-out dialog on their next request (README, cross-cutting states).
+1. "Sign out" ends this session. "Sign out everywhere" ends every session (spec S3).
+2. Both are written to the audit log (spec S7). Other devices show the signed-out dialog on their next request (README, cross-cutting states).
 
 **Accessibility**
 - Two clearly labelled buttons. Focus lands on the sign-in screen's heading.
@@ -54,7 +54,7 @@ flowchart LR
 
 **Steps**
 1. "Keep Undo messages until I close them" (off by default). When on, Undo messages have no timer and close after 10 minutes at most (README, Undo).
-2. Motion, contrast and text size follow the system settings (PRD A6, U7), so they are not repeated here. The page says so and points to the system settings.
+2. Motion, contrast and text size follow the system settings (spec A6, U7), so they are not repeated here. The page says so and points to the system settings.
 
 **States and errors**
 - **Save failed:** the switch returns to its previous position, with "Couldn't save. Retry."
@@ -86,7 +86,7 @@ flowchart LR
 
 **Steps**
 1. Tap Export. The screen lists what the file contains (Must 14).
-2. The file downloads. Deleted tasks appear without titles. The export is written to the audit log (PRD S7).
+2. The file downloads. Deleted tasks appear without titles. The export is written to the audit log (spec S7).
 
 **States and errors**
 - **Loading:** "Preparing your file…"
@@ -121,7 +121,7 @@ flowchart LR
 
 **Steps**
 1. The screen explains what will be deleted, that it cannot be undone, and that backups are purged within 30 days (Must 14).
-2. A confirmation dialog asks the user to type "delete" (the only confirmation dialog besides the overlap warning, PRD U3).
+2. A confirmation dialog asks the user to type "delete" (the only confirmation dialog besides the overlap warning, spec U3).
 3. The app revokes Google access, then deletes every record in one step (Must 14, architecture 7.9).
 4. The user is signed out on every device, and the final screen confirms the deletion.
 

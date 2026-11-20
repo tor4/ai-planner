@@ -1,6 +1,6 @@
 # Metrics and insights
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Weekly metrics (1a)
 
@@ -28,12 +28,12 @@ flowchart LR
 ```
 
 **Steps**
-1. Open Metrics. Each metric from PRD section 3 shows this week's value and a trend over the past weeks (Must 15).
+1. Open Metrics. Each metric from spec section 3 shows this week's value and a trend over the past weeks (Must 15).
 2. The first 4 weeks are labelled "Baseline". Weeks that ended under 14 days ago are labelled "Provisional" (Must 15).
 3. Pick a week to see its numbers, or a metric tile to see its detail: its trend over the tracked weeks, its definition in one sentence, and its companion numbers (below).
 
 **States and errors**
-- **Empty:** "Numbers start on the first Monday after you've used the app on 5 of 7 days. So far: 3 of 7." (PRD section 3).
+- **Empty:** "Numbers start on the first Monday after you've used the app on 5 of 7 days. So far: 3 of 7." (spec section 3).
 - **Error:** "Couldn't load your metrics. Retry."
 
 **Accessibility**
@@ -96,7 +96,7 @@ flowchart LR
 ```
 
 **Steps**
-1. Tap Summary. It is never pushed automatically (PRD section 5, Should).
+1. Tap Summary. It is never pushed automatically (spec section 5, Should).
 2. It shows tasks planned, completed and postponed, hours in total and by type, planned vs. actual time, and a few facts such as the most postponed task.
 
 **States and errors**
@@ -128,7 +128,7 @@ flowchart LR
 ```
 
 **Steps**
-1. A tip comes only from the curated evidence list, with its source and evidence rating (PRD section 4). It gives wellbeing guidance only, never medical advice.
+1. A tip comes only from the curated evidence list, with its source and evidence rating (spec section 4). It gives wellbeing guidance only, never medical advice.
 2. Dismissing it hides that feature's "Why?" link. Tips stay available on the Tips page.
 
 **Accessibility**
@@ -161,7 +161,7 @@ flowchart LR
 ```
 
 - **Tablet and desktop:** eight tiles in one or two rows of four, then the trend chart.
-- **Each tile shows** (PRD section 3, Must 15):
+- **Each tile shows** (spec section 3, Must 15):
 
 | Tile | Main number | Companion numbers |
 |---|---|---|
@@ -175,9 +175,9 @@ flowchart LR
 | Load | planned hours as a share of template time | hours outside allowed time, in buffers or over hard events |
 
 - **Metric detail:** choosing a tile shows its trend chart and table, a one-sentence definition with a link to "How this is counted", and its companion numbers for each week.
-- **A day of use** (empty state): a day with at least one planning session, meaning active editing as defined for planning time (PRD section 3).
+- **A day of use** (empty state): a day with at least one planning session, meaning active editing as defined for planning time (spec section 3).
 - **Elements:** each tile is a button that selects its metric for the trend, named "Completion rate 72 percent, up from 65, show trend". ⑤ toggles a table with the same numbers. Baseline and Provisional are text labels.
-- **Screen reader:** the chart has a text summary as its accessible name ("Completion rate over 8 weeks, from 58 to 72 percent"); the table is the full alternative (PRD A2).
+- **Screen reader:** the chart has a text summary as its accessible name ("Completion rate over 8 weeks, from 58 to 72 percent"); the table is the full alternative (spec A2).
 - **States:**
   - Before the clock starts: "Numbers start on the first Monday after you've used the app on 5 of 7 days. So far: 3 of 7."
   - Loading: tile skeletons.

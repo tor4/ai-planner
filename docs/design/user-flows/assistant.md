@@ -1,6 +1,6 @@
 # Assistant
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 The assistant is a Should item. It does not ship until every Must 13 condition is met.
 
@@ -31,7 +31,7 @@ flowchart LR
 **Steps**
 1. On the first open, a one-time screen shows five switches: task titles, notes, checklist steps, event titles and task-type names. All are off by default (Must 13, decided).
 2. The screen says what is always sent (times, durations, flags, a type ID), what is never sent (event descriptions, attendees), and who processes the data. It links to "How the assistant works".
-3. Changes are saved and written to the audit log (PRD S7). Afterwards the switches live only in Settings, and the chat never asks to change them (decided).
+3. Changes are saved and written to the audit log (spec S7). Afterwards the switches live only in Settings, and the chat never asks to change them (decided).
 
 **States and errors**
 - **Save failed:** "Couldn't save your choices. Retry." The switches keep their positions on screen, and the stored ones stay unchanged. Nothing new is sent until the save succeeds.
@@ -80,7 +80,7 @@ flowchart LR
 - **Empty:** example questions, and "Chats are kept 30 days."
 - **Loading:** "Reading your data…"
 - **Unavailable:** provider down, cost cap or rate limit. "Assistant unavailable. The planner works as usual." The input is disabled (Must 13).
-- **Turned off by its feature flag (kill switch):** the assistant is hidden: no chat button, rail item or settings entry (PRD R6).
+- **Turned off by its feature flag (kill switch):** the assistant is hidden: no chat button, rail item or settings entry (spec R6).
 - **Too much data:** "That covers too much data. Try 13 months or fewer."
 - **Off-topic:** a polite decline (Must 13).
 - **Distress:** a caring reply with crisis resources, and no medical advice (Must 13).

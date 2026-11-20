@@ -1,6 +1,6 @@
 # Calendar
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Choose calendars (1a)
 
@@ -105,7 +105,7 @@ flowchart LR
 **Steps**
 1. **Connect** (after skipping it in first setup, or declining calendar access at sign-in): Settings shows "Google Calendar isn't connected" and a Connect button. It opens Google's consent screen for the calendar scope, then Choose calendars.
 2. **Reconnect:** when access is revoked or failing, a banner says "Google Calendar disconnected. Events as of 10:42." Primary action: Reconnect (Must 3). It opens the same consent screen. Choose calendars then shows the previous selection, already ticked, to confirm or change, and a sync follows.
-3. **Disconnect**, in Settings, removes the imported events and revokes access. Blocks stay. It is written to the audit log (PRD S7).
+3. **Disconnect**, in Settings, removes the imported events and revokes access. Blocks stay. It is written to the audit log (spec S7).
 
 **States and errors**
 - **Disconnect failed:** "Couldn't disconnect. Retry." Nothing was removed.
@@ -115,7 +115,7 @@ flowchart LR
 
 **Accessibility**
 - The banner stays until the problem is fixed. It is announced once, and its button is reachable by Tab.
-- Disconnect is a plain button with an inline "Are you sure?" row rather than a dialog (PRD U3 allows dialogs only for delete all and overlaps).
+- Disconnect is a plain button with an inline "Are you sure?" row rather than a dialog (spec U3 allows dialogs only for delete all and overlaps).
 
 ## Screens
 

@@ -1,6 +1,6 @@
 # Reminders and confirmation
 
-Part of [Design 1: User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
+Part of [User flows](README.md). The diagram key, cross-cutting states and state labels are in the README.
 
 ## Turn on reminders (1a)
 
@@ -136,7 +136,7 @@ flowchart LR
 
 **Steps**
 1. The Check in list shows unconfirmed blocks, oldest first, with "2 left" and "Closes in 5 days" on each. Missed blocks carry the "Missed" label (decided). A notification opens the list at its block.
-2. Each card shows the title, the planned time, and four buttons at least 44 × 44 px (PRD A4). After confirming, the card shows the planned-vs-real summary: the block's planned and actual time, and the day's planned and confirmed hours (Must 2).
+2. Each card shows the title, the planned time, and four buttons at least 44 × 44 px (spec A4). After confirming, the card shows the planned-vs-real summary: the block's planned and actual time, and the day's planned and confirmed hours (Must 2).
 3. The options (Must 2):
    - **As planned:** one tap.
    - **It took X:** enter the actual time, and optionally the actual start. A new start moves the block, and later blocks that now overlap are flagged "May be affected".
@@ -149,7 +149,7 @@ flowchart LR
    - To plan more work, the user unticks Done first (see Mark a task done or not done, in [tasks.md](tasks.md)).
 5. **Auto-done:** only "as planned" and "it took X" on the task's last block, with no time left unscheduled, mark the task done. The confirmation says "Write report marked done" with an Untick button (Must 2). If time is still unscheduled, the card offers "Plan the rest" or "Mark done".
 
-**Input checks** (PRD A5: the field is named and a fix suggested, and the entry is kept)
+**Input checks** (spec A5: the field is named and a fix suggested, and the entry is kept)
 - **It took X:** the actual time must be above 0 and at most 24 hours ("Enter a time between 1 minute and 24 hours"). An actual start in the future is rejected ("The start can't be in the future").
 - **Crossing midnight:** if the actual start and time run past midnight, the block is shown ending at midnight and the full time is still recorded. The card says "Shown until midnight. 2 h 30 recorded." (Must 2)
 - **Partly done:** the time done must be between 1 minute and 24 hours. The time left can be 0, which means no remainder.
@@ -240,7 +240,7 @@ flowchart LR
 ```
 
 **Steps**
-1. When a block becomes Missed, a prompt offers new slots from the suggester (PRD section 5, Should). Picking one moves the block, which counts as one postponement.
+1. When a block becomes Missed, a prompt offers new slots from the suggester (spec section 5, Should). Picking one moves the block, which counts as one postponement.
 2. On a task's third postponement, a prompt asks "Split it, shrink it, or delete it?", with "Keep as is" also available.
 
 **Accessibility**
@@ -297,7 +297,7 @@ The frame and navigation are in the [README](README.md#screens-frame-navigation-
 ### End-of-day banner (1a)
 
 - **Flows:** Confirm a block (entry).
-- **Shown:** on the first app open after the end of day (PRD glossary) while any block of that day is unconfirmed, and again on the first open of each later day while unconfirmed blocks from the last 7 days remain. Not shown when the Check in list is already open.
+- **Shown:** on the first app open after the end of day (spec glossary) while any block of that day is unconfirmed, and again on the first open of each later day while unconfirmed blocks from the last 7 days remain. Not shown when the Check in list is already open.
 - **All sizes:** under the toolbar of the planner: "2 blocks to check in from yesterday. ① Check in now ② Later". Check in now opens Check in. Later hides it until the next day's first open.
 - **Screen reader:** a region named "Check in", announced politely once. It never takes focus.
 - **Order:** it follows the README's banner order.

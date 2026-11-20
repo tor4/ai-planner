@@ -1,5 +1,5 @@
 ---
-title: "AI Planner PRD"
+title: "AI Planner spec"
 working_title: "AI Planner"
 owner: Nataly
 version: 0.4
@@ -8,7 +8,7 @@ status: approved
 approved_on: 2026-11-18
 ---
 
-# Product Requirements Document: AI Planner
+# Spec: AI Planner
 
 The product name is undecided; see "Open questions".
 
@@ -462,7 +462,7 @@ A Must is done when all of the following hold:
 - the performance budgets (P4) hold;
 - there are no new high or critical dependency vulnerabilities (S6);
 - its screens have empty, loading and error states, work by keyboard, and have all text in message files;
-- the PRD and `docs/architecture.md` are updated if behavior or design changed.
+- the spec and `docs/architecture.md` are updated if behavior or design changed.
 
 ### 6.10 Public website and SEO
 The product has a public website that search engines index. The app itself stays invite-only: sign-in is limited to the allow-list, and multi-user support stays in Later. The website ships after Release 1b, once the product name and domain are chosen (section 10).
@@ -531,12 +531,12 @@ Each item is owned by the owner (Nataly), and no decision date is set yet. The f
 - Behavior not yet defined: notification deduplication across devices; the availability template's behavior when it conflicts with calendar events; limits on tasks, blocks and history length; the LLM cost cap and rate limit values; which languages to add after English; time-zone handling of imported events; what deleting a past unconfirmed block does to the confirmation rate.
 
 ## Changelog
-- **v0.4 (2026-11-18, approved 2026-11-18):** decisions from the strict review of design step 1 (user flows 0.4, screens and wireframes).
+- **v0.4 (2026-11-18, approved 2026-11-18):** decisions from the strict review of the user flows (0.4, screens and wireframes).
   - **Must 6:** Drop is removed. "Not now" takes a task's future blocks off the calendar and keeps it open. Delete is the only removal. There is no "Recently removed": deleted tasks and blocks come back only through Undo. The block state "dropped" is renamed "task deleted" (glossary, section 3). Adding a task has no undo.
   - **Must 2:** rules for editing a confirmation. The list is called "Check in" in the app.
   - **Must 15 and 18:** event and wording updates; only "End series".
   - **Section 6, U3:** the Undo list follows Must 6, Ctrl+Z works outside text fields only, grouping is an ordered list, and Undo is not available offline.
-- **v0.3 (2026-11-16, approved 2026-11-16):** decisions from design step 1, the user flows (`docs/design/01-user-flows/`).
+- **v0.3 (2026-11-16, approved 2026-11-16):** decisions from the user flows (`docs/design/user-flows/`).
   - **Closed open questions:** the first-run flow (Must 5, starter template) and what a block shows after its 7-day window (glossary, "Unconfirmed, window closed").
   - **Must 2:** a "To confirm" list plus inline confirmation, and a "Missed" label in 1a. The reschedule prompt stays a Should. Input limits for "it took X" and "partly done". Confirming a block moved on another device asks again. Confirming an old block of a done task never plans more work.
   - **Must 3:** declining calendar access, or skipping it, still signs in, and the calendar can be connected later.

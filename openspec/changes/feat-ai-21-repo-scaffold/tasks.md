@@ -15,7 +15,7 @@
 ## 3. CI
 
 - [x] 3.1 Add `.github/workflows/ci.yml` (`npm ci`, Playwright browser install with cache, gitleaks install, full `npm run check`, `npm audit --omit=dev --audit-level=high`, dependency review on pull requests only; triggers: push to any branch and pull_request). Verify with `actionlint` or a YAML parse locally.
-- [ ] 3.2 Push the branch. Verify a CI run starts on the push and is green, then open a draft pull request and verify the PR run, then push a commit with `Date.now()` in `packages/core` and verify CI goes red; revert it.
+- [x] 3.2 Push the branch. Verify a CI run starts on the push and is green, then open a draft pull request and verify the PR run, then push a commit with `Date.now()` in `packages/core` and verify CI goes red; revert it.
 
 ## 4. Docs
 

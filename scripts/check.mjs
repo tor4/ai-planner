@@ -31,6 +31,7 @@ const steps = [
   ['Prettier', 'npx', ['prettier', '--check', ...formatted]],
   ['ESLint', 'npx', ['eslint', '.']],
   ...workspaces.map((w) => [`tsc (${w})`, 'npx', ['tsc', '-p', w]]),
+  ['tsc (e2e, lint tests, root configs)', 'npx', ['tsc', '-p', '.']],
   ['gitleaks (history)', 'gitleaks', ['git', '--no-banner', '--redact', '.']],
   [
     'gitleaks (working tree)',

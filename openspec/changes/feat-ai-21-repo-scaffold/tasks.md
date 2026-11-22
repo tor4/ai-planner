@@ -20,7 +20,7 @@
 ## 4. Docs
 
 - [x] 4.1 Update `docs/STATUS.md` (phase, recent changes, next steps) and the AGENTS.md "No build setup exists yet" line. Verify with `git diff --stat`.
-- [ ] 4.2 Run `npm run check` and `npx openspec validate feat-ai-21-repo-scaffold`; request code review.
+- [x] 4.2 Run `npm run check` and `npx openspec validate feat-ai-21-repo-scaffold`; request code review.
 
 ## Workflow follow-up
 

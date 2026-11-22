@@ -23,7 +23,23 @@ const ioModules = [
   '@ai-planner/db',
   'undici',
   'axios',
+  'node-fetch',
+  'postgres',
+  '@libsql/*',
+  'os',
+  'http2',
+  'dgram',
+  'stream',
+  'stream/*',
+  'readline',
+  'zlib',
+  'worker_threads',
+  'cluster',
+  'vm',
+  'module',
 ];
+const clock =
+  'packages/core must not read the clock. Pass the current time in.';
 const corePurity = {
   'no-restricted-imports': [
     'error',
@@ -47,6 +63,30 @@ const corePurity = {
       selector: "NewExpression[callee.name='Date'][arguments.length=0]",
       message:
         'packages/core must not read the clock. Pass the current time in.',
+    },
+    {
+      selector: "CallExpression[callee.name='Date']",
+      message: clock,
+    },
+    {
+      selector:
+        "CallExpression[callee.object.name='globalThis'][callee.property.name='fetch']",
+      message: 'packages/core must not use the network.',
+    },
+    {
+      selector:
+        "CallExpression[callee.object.object.name='globalThis'][callee.object.property.name='Date'][callee.property.name='now']",
+      message: clock,
+    },
+    {
+      selector:
+        "CallExpression[callee.object.name='performance'][callee.property.name='now']",
+      message: clock,
+    },
+    {
+      selector:
+        "CallExpression[callee.object.name='Math'][callee.property.name='random']",
+      message: 'packages/core must not be random. Pass a random source in.',
     },
     {
       selector: "CallExpression[callee.name='fetch']",

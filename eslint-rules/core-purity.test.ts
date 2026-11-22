@@ -19,6 +19,28 @@ describe('packages/core purity rule', () => {
       'node:fs',
       "import { readFileSync } from 'node:fs';\nexport const f = readFileSync;",
     ],
+    ['Date() without new', 'export const t = Date();'],
+    ['performance.now()', 'export const t = performance.now();'],
+    ['Math.random()', 'export const r = Math.random();'],
+    [
+      'globalThis.fetch',
+      "export const r = globalThis.fetch('https://example.com');",
+    ],
+    ['globalThis.Date.now()', 'export const t = globalThis.Date.now();'],
+    [
+      'os without the node: prefix',
+      "import { cpus } from 'os';\nexport const c = cpus;",
+    ],
+    ['http2', "import http2 from 'http2';\nexport const h = http2;"],
+    [
+      'stream',
+      "import { Readable } from 'stream';\nexport const s = Readable;",
+    ],
+    ['node-fetch', "import fetch from 'node-fetch';\nexport const f = fetch;"],
+    [
+      'postgres',
+      "import postgres from 'postgres';\nexport const p = postgres;",
+    ],
     ['node:http', "import http from 'node:http';\nexport const h = http;"],
     [
       'the db package',

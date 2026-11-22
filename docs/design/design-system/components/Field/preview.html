@@ -1,0 +1,8 @@
+<!-- @dsCard group="Forms" height=520 -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Field · AI Planner</title><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../../components.css"><style>body{margin:0;padding:20px;background:var(--paper);color:var(--ink);font-family:var(--font-sans)} .f{display:grid;gap:16px;max-width:380px}</style></head><body><div class="f">
+<div class="aip-capture"><input class="aip-input" aria-label="New task" placeholder="New task: type and press Enter"><button class="aip-iconbtn aip-iconbtn--accent" aria-label="Add task"><i class="ti ti-plus" aria-hidden="true"></i></button></div>
+<div class="aip-field"><label for="e">Estimate</label><input class="aip-input" id="e" value="6 h"><p class="aip-hint">Usually takes you 5.5 h (median of 7 Work tasks) <button class="aip-btn aip-btn--secondary aip-btn--small">Use</button></p></div>
+<div class="aip-field"><label for="t">Type</label><select class="aip-input" id="t"><option>Work</option><option>Personal</option></select></div>
+<div><label class="aip-check"><input type="checkbox"> Urgent</label>&nbsp;&nbsp;&nbsp;<label class="aip-check"><input type="checkbox" checked> Important</label></div>
+<div class="aip-field aip-field--error"><label for="x">It took</label><input class="aip-input" id="x" value="26 h" aria-describedby="xe"><p class="aip-error" id="xe">⊘ It took: enter between 1 minute and 24 hours.</p></div>
+</div></body></html>

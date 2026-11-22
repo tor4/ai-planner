@@ -20,6 +20,7 @@ Read only the current change's folder. Don't open other folders under `openspec/
 - `docs/spec.md`: requirements. IDs like "Must 3" or "A4" point here; use its glossary terms. Edit it only when a change requires it or I ask; never move or rename it.
 - `docs/design/user-flows/`: flows and screens, one file per feature area.
 - `docs/architecture.md`: how to build it, including conventions (section 19).
+- `docs/STANDARDS.md`: standards that changes must follow.
 - `docs/design/design-system/`: edit `tokens.json`; `tokens.css` is generated.
 - `openspec/specs/`: detailed behavior specs, updated only by archiving a change. `docs/spec.md` wins if they disagree.
 
@@ -45,9 +46,14 @@ python3 docs/design/design-system/build.py                   # regenerate tokens
 npm run eval:skill -- <skill-name> [--case <case>]           # run a project skill's test cases
 npx openspec list                                            # list active changes
 npx openspec validate <change-name>                          # check a change's structure
+npm run check                                                # all checks: Prettier, ESLint (complexity 15), tsc, gitleaks, unit tests (80% coverage), end-to-end tests
+npm run check:quick                                          # same, without the end-to-end tests
+npm run format                                               # fix formatting with Prettier
 ```
 
-No build, lint or test setup exists yet.
+Run `npm run check` before saying a change is done, and fix what it finds; never weaken a rule to make it pass. If a rule doesn't suit the project, ask first. Prettier and ESLint cover `apps/web`; tsc covers `apps/web` and `apps/api`. gitleaks must be installed (`brew install gitleaks`), and the git-ignored `.env` is allowed in `.gitleaks.toml`.
+
+No build setup exists yet.
 
 ## When code starts
 

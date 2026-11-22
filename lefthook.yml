@@ -1,0 +1,21 @@
+# Quick pre-commit checks. Tests are skipped on purpose; `npm run check` runs them.
+pre-commit:
+  parallel: false # format first, then check the formatted files
+  commands:
+    1-format:
+      glob: 'apps/web/**/*.{ts,tsx,js,jsx,json,css,md}'
+      run: npx prettier --write {staged_files}
+      # Re-stages the whole formatted file, so hunks left out with `git add -p`
+      # are staged too. Stage whole files when committing.
+      stage_fixed: true
+    2-lint:
+      glob: 'apps/web/**/*.{ts,tsx}'
+      run: npx eslint {staged_files}
+    3-types-web:
+      glob: 'apps/web/**/*.{ts,tsx}'
+      run: npx tsc -p apps/web
+    4-types-api:
+      glob: 'apps/api/**/*.ts'
+      run: npx tsc -p apps/api
+    5-gitleaks:
+      run: gitleaks git --staged --no-banner --redact

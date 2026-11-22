@@ -46,7 +46,7 @@ python3 docs/design/design-system/build.py                   # regenerate tokens
 npm run eval:skill -- <skill-name> [--case <case>]           # run a project skill's test cases
 npx openspec list                                            # list active changes
 npx openspec validate <change-name>                          # check a change's structure
-npm run check                                                # all checks: Prettier, ESLint (complexity 15), tsc, gitleaks, unit tests (80% coverage), end-to-end tests
+npm run check                                                # all checks: Prettier, ESLint, tsc, gitleaks, unit tests, end-to-end tests
 npm run check:quick                                          # same, without the end-to-end tests
 npm run format                                               # fix formatting with Prettier
 ```

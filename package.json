@@ -10,9 +10,10 @@
     "test": "vitest run --coverage",
     "test:e2e": "playwright test",
     "format": "prettier --write apps/web",
-    "check": "bash scripts/check.sh",
-    "check:quick": "bash scripts/check.sh --quick",
-    "eval:skill": "bash scripts/eval-skill.sh"
+    "check": "node scripts/check.mjs",
+    "check:quick": "node scripts/check.mjs --quick",
+    "eval:skill": "node scripts/eval-skill.mjs",
+    "prepare": "test -e .git && lefthook install || true"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "lefthook": "^2.2.2",
     "prettier": "^3.10.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.73.0",

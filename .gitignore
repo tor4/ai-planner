@@ -13,3 +13,15 @@ node_modules/
 # Skill test results (one folder per skill)
 .skill-evals/
 .claude/skills/*/evals/results/
+
+# Local secrets
+.env
+.env.local
+
+# Test output
+coverage/
+test-results/
+playwright-report/
+
+# Playwright MCP session files
+.playwright-mcp/

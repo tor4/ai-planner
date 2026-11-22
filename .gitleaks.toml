@@ -1,0 +1,9 @@
+title = "AI Planner gitleaks config"
+
+[extend]
+useDefault = true
+
+# The git-ignored local .env may hold real secrets. Everything else is scanned.
+[[allowlists]]
+description = "git-ignored local .env files"
+paths = ['''(^|/)\.env(\.local)?$''']

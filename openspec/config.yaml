@@ -1,0 +1,49 @@
+schema: spec-driven
+context: |
+  The main product spec is docs/spec.md. Read it before writing any artifact.
+  Proposals and designs must stay consistent with it; if a change conflicts with it,
+  flag the conflict in proposal.md instead of silently diverging.
+  Never edit docs/spec.md unless explicitly asked.
+  Implementation uses Superpowers: TDD, worktrees, verification, code review.
+rules:
+  proposal:
+    - Reference the section(s) of docs/spec.md this change implements
+  tasks:
+    - Write each task as a small, testable step, naming the test to write first
+operations:
+  archive:
+    guidance:
+      - Summarize the archive outcome before finishing
+      - If this change affects anything described in docs/spec.md, list the
+        sections that need updating and ask whether to update them.
+
+# Project context (optional)
+# Add only constraints that should guide OpenSpec artifacts and workflows.
+# Include constraints an agent cannot infer by reading the code.
+# Keep general project documentation and discoverable codebase facts out.
+# Example:
+#   context: |
+#     Designs and tasks must cover Windows, macOS, and Linux
+#     Write all artifacts in Spanish
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

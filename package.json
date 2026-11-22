@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/tor4/ai-planner/issues"
   },
-  "homepage": "https://github.com/tor4/ai-planner#readme"
+  "homepage": "https://github.com/tor4/ai-planner#readme",
+  "devDependencies": {
+    "@fission-ai/openspec": "^2.1.1"
+  }
 }

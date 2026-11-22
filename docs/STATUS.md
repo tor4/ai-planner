@@ -2,7 +2,7 @@
 
 Updated 2026-11-22. Owner: Nataly.
 
-**Phase:** requirements and design. No application code yet; Release 1a development has not started.
+**Phase:** requirements and design, with the repo scaffold in place (AI-21). No application code yet; Release 1a development has not started.
 
 ## Documents
 
@@ -18,6 +18,7 @@ Updated 2026-11-22. Owner: Nataly.
 
 ## Recent changes
 
+- Repo scaffold (AI-21, change `feat-ai-21-repo-scaffold`): npm workspaces, ESLint over all workspaces with a rule that blocks I/O and `Date.now()` in `packages/core`, a smoke end-to-end test, and a GitHub Actions workflow that runs `npm run check`, `npm audit` and dependency review. `npm run check` now passes. Awaiting a first CI run on GitHub.
 - `AGENTS.md` points to `docs/STANDARDS.md`, and `docs/REVIEW.md` says to check changes against it.
 - `npm run check`, `check:quick` and `format` added (Prettier, ESLint, tsc, gitleaks, Vitest with 80% coverage, Playwright). Tooling only: with no code in `apps/web` and `apps/api`, the check fails until the first code and tests exist.
 - `docs/PRD.md` renamed to `docs/spec.md`; all documents now call it "the spec".

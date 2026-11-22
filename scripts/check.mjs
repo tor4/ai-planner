@@ -7,13 +7,36 @@ import { resolve } from 'node:path';
 process.chdir(resolve(import.meta.dirname, '..'));
 const quick = process.argv.includes('--quick');
 
+// Everything Prettier checks. Keep in sync with the `format` script in package.json.
+const formatted = [
+  'apps',
+  'packages',
+  'e2e',
+  'eslint-rules',
+  'scripts/check.mjs',
+  '.github',
+  'eslint.config.mjs',
+  'vitest.config.mts',
+  'playwright.config.ts',
+];
+const workspaces = [
+  'apps/web',
+  'apps/api',
+  'apps/scheduler',
+  'packages/core',
+  'packages/db',
+];
+
 const steps = [
-  ['Prettier', 'npx', ['prettier', '--check', 'apps/web']],
-  ['ESLint', 'npx', ['eslint', 'apps/web']],
-  ['tsc (frontend)', 'npx', ['tsc', '-p', 'apps/web']],
-  ['tsc (backend)', 'npx', ['tsc', '-p', 'apps/api']],
+  ['Prettier', 'npx', ['prettier', '--check', ...formatted]],
+  ['ESLint', 'npx', ['eslint', '.']],
+  ...workspaces.map((w) => [`tsc (${w})`, 'npx', ['tsc', '-p', w]]),
   ['gitleaks (history)', 'gitleaks', ['git', '--no-banner', '--redact', '.']],
-  ['gitleaks (working tree)', 'gitleaks', ['dir', '--no-banner', '--redact', '.']],
+  [
+    'gitleaks (working tree)',
+    'gitleaks',
+    ['dir', '--no-banner', '--redact', '.'],
+  ],
   ['Unit tests, 80% coverage', 'npm', ['test']],
   ...(quick ? [] : [['End-to-end tests', 'npm', ['run', 'test:e2e']]]),
 ];

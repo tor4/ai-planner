@@ -53,7 +53,7 @@ npm run format                                               # fix formatting wi
 
 Run `npm run check` before saying a change is done, and fix what it finds; never weaken a rule to make it pass. If a rule doesn't suit the project, ask first. Prettier and ESLint cover `apps/web`; tsc covers `apps/web` and `apps/api`. gitleaks must be installed (`brew install gitleaks`), and the git-ignored `.env` is allowed in `.gitleaks.toml`.
 
-No build setup exists yet.
+The npm-workspaces scaffold exists (`apps/web`, `apps/api`, `apps/scheduler`, `packages/core`, `packages/db`) with placeholder code. There is no build step: packages are consumed as TypeScript source. `.github/workflows/ci.yml` runs `npm run check` on every push and pull request.
 
 ## When code starts
 

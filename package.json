@@ -9,7 +9,7 @@
   "scripts": {
     "test": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "format": "prettier --write apps/web",
+    "format": "prettier --write apps packages e2e",
     "check": "node scripts/check.mjs",
     "check:quick": "node scripts/check.mjs --quick",
     "eval:skill": "node scripts/eval-skill.mjs",
@@ -41,5 +41,9 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.1"
-  }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
